@@ -14,17 +14,16 @@ int calcsize(char *file)
 {
     struct stat statbuf;
     stat(file, &statbuf);
-    // printf("%d\n", statbuf.st_size );
     return statbuf.st_size;
 }
 
-void strrev(char *str)
+void strrev(char *str, int size)
 {
-    for(int i=0; i<=strlen(str)/2; i++)
+    for(int i=0; i<=size/2; i++)
     {
         char temp = str[i];
-        str[i] = str[strlen(str)-i-1];
-        str[strlen(str)-i-1] = temp;
+        str[i] = str[size-i-1];
+        str[size-i-1] = temp;
     }
 }
 
@@ -51,35 +50,36 @@ int main(int argc, char *argv[])
     }
 
     // Place input file pointer at end of file
-    int preseek = (size>=5000) ? 5000 : size;
+    int preseek = (size>=chunksize) ? chunksize : size;
+    int bytesread = 0;
+    
     lseek(fd, -preseek, 2);
 
     //Go about the chunks of blocks
-    for(int i=0; i<=size; i+=5000) {
+    for(int i=0; i<=size; i+=chunksize) {
 
-        //Read 5000 or <5000 blocks?
-        int readsize = (size-i) >= 5000 ? 5000 : (size-i);
-        
-        // printf("read: %d\n", readsize);
+        //Read chunksize or <chunksize blocks?
+        int readsize = (size-i) >= chunksize ? chunksize : (size-i);
 
         //Create string for reversal
-        char *c = malloc(readsize);
+        char c[5000];
+        
         
         read(fd, c, readsize);
-        // printf("%s\n", c);
+        bytesread += readsize;
 
         //Reverse the string
-        strrev(c);
-        // printf("%s\n", c);
+        // strrev(c, readsize);
 
         write(fw, c, readsize);
         
-        lseek(fd, -6000, 1);
+        lseek(fd, (size-bytesread) >= chunksize ? -2*chunksize : , 1)
 
-        // printf("\r%f done", ((i*1.0)/size)*100);
-
-        free(c);
+        printf("\r%f done", ((i*1.0)/size)*100);
     }
+
+    close(fd);
+    close(fw);
 
     return 0;
 }
