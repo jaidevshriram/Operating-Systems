@@ -65,10 +65,10 @@ int main(int argc, char *argv[])
     char newfilepath[100] = "./Assignment/";
     strcat(newfilepath, filename);
 
-    mkdir("./Assignment/", 700);
+    mkdir("./Assignment/", 0700);
 
     //Open file to write too
-    int fw = open(newfilepath, O_CREAT | O_WRONLY | O_APPEND, 600);
+    int fw = open(newfilepath, O_CREAT | O_WRONLY | O_APPEND, 0600);
 
     int bytesread = 0, chunksize = 5000;
 

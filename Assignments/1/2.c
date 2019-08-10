@@ -165,7 +165,7 @@ void permdisplay(char *type, char *permtype, char *filename, int hasperm)
 int perm(char *filetype, char *file)
 {
     struct stat filestat;
-    if(stat(file, &filestat) == -2) {
+    if(stat(file, &filestat) == -1) {
         perror("File/Directory does not exist");
         return -1;
     }
