@@ -24,7 +24,7 @@ int calcsize(char *file)
 //Reverses the string
 void strrev(char *str, int size)
 {
-    for(int i=0; i<=size/2; i++)
+    for(int i=0; i<size/2; i++)
     {
         char temp = str[i];
         str[i] = str[size-i-1];
