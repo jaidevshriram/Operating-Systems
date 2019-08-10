@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     char newfilepath[100] = "./Assignment/";
     strcat(newfilepath, filename);
 
-    mkdir("./Assignment/", 600);
+    mkdir("./Assignment/", 700);
 
     //Open file to write too
     int fw = open(newfilepath, O_CREAT | O_WRONLY | O_APPEND, 600);
