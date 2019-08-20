@@ -3,26 +3,37 @@
 #include<stdlib.h>
 #include<string.h>
 
-// //Custom header files
+//Custom header files
 #include "changedir.h"
 #include "helper.h"
+#include "pwd.h"
+#include "echo.h"
 
 extern char *username, hostname[100], pwd[1000];
 
 char **tokenize_input(char *input)
 {
-	char **tokenized_input = malloc(1000);
+	while(iswhitespace(*input))
+		input++;
+
+	char str[1000];
+	strcpy(str, input);
+
+	trimTrailing(str);
+
+	char **tokenized_input = (char **) malloc(1000);
 
 	char *input_part;
 
 	int position = 0;
 
-	input_part = strtok(input, " ");
+	input_part = strtok(str, " ");
 
 	while(input_part)
 	{
-		tokenized_input[position++] = input_part;
-		input_part = strtok(0, " ");
+		tokenized_input[position++] = malloc(strlen(input_part));
+		strcpy(tokenized_input[position-1], input_part);
+		input_part = strtok(NULL, " ");
 	}
 
 	return tokenized_input;
@@ -31,40 +42,42 @@ char **tokenize_input(char *input)
 void start_command_execution(char *input)
 {
 	char **tokenized_input = tokenize_input(input);
+	char command_list[100][1000];
+	char command[100];
 
-	char **command_list = malloc(1000);
-
-	command_list[0] = "cd";
-	command_list[1] = "pwd";
-	command_list[2] = "dir";
+	strcpy(command, tokenized_input[0]);
+	strcpy(command_list[0], "cd");
+	strcpy(command_list[1], "pwd");
+	strcpy(command_list[2], "echo");
 
 	int command_count = 3;
 
-	int commandfound = 0, i;
+	int command_found = 0, i;
 
-	for(i=0; !commandfound && i<command_count; i++)
+	for(i=0; command_found == 0 && i<command_count; i++)
 	{
-		if(strcmp(command_list[i], tokenized_input[0])==0)
-			commandfound = 1;
+		if(strcmp(command, command_list[i]) == 0)
+			command_found = 1;
 	}
 
-	if(commandfound == 0)
+	if(command_found == 0)
 		printf("Command does not exist.\n");
 	else
 	{
 		switch((i-1))
 		{
-			case 0: cd(tokenized_input);
+			case 0: cd(tokenized_input); break;
+			case 1: print_pwd(); break;
+			case 2: echo(input); break;
 		}
-	}
-	
+	}	
 }
 
-char* input_is_triggered()
+int input_is_triggered()
 {
 
 	unsigned long int size = 1000;
-	char *input = malloc(size);
+	char *input = (char *) malloc(size);
 
 	if(input == NULL)
 	{
@@ -75,7 +88,7 @@ char* input_is_triggered()
 
 	start_command_execution(input);
 
-	return input;
+	return 1;
 }
 
 int main(int argc, char const *argv[])
