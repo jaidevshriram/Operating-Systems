@@ -5,10 +5,10 @@ CC=gcc
 CFLAGS=-I
 
 #Include other directories to search for header files
-INCLUDES = -I/cd
+INCLUDES = ./cd
 
 #Source Files
-SRCS = main.c ./cd/changedir.cd
+SRCS = main.c ./cd/changedir.c
 
 #Define C Object Files
 OBJS = $(SRCS:.c=.o)
@@ -27,4 +27,4 @@ $(MAIN): $(OBJS)
 
 
 shell: cd/changedir.h main.c
-	gcc -o shell cd/changedir.h main.c
+	gcc -o shell cd/changedir.c main.c

@@ -4,14 +4,12 @@
 #include<string.h>
 
 // //Custom header files
-// #include<changedir.h>
+#include "changedir.h"
+#include "helper.h"
 
-#define STDIN 0
+extern char *username, hostname[100], pwd[1000];
 
-char *username, hostname[100];
-char pwd[1000];
-
-char ** tokenize_input(char *input)
+char **tokenize_input(char *input)
 {
 	char **tokenized_input = malloc(1000);
 
@@ -28,12 +26,6 @@ char ** tokenize_input(char *input)
 	}
 
 	return tokenized_input;
-}
-
-void cd(char **command)
-{
-	command[1] = strtok(command[1], "\n");
-	printf("%d code\n",chdir(command[1]));
 }
 
 void start_command_execution(char *input)
@@ -84,18 +76,6 @@ char* input_is_triggered()
 	start_command_execution(input);
 
 	return input;
-}
-
-void updatepwd()
-{
-	getcwd(pwd, 1000);
-}
-
-void initialize() 
-{
-	username = getenv("USER");
-	gethostname(hostname, 100);
-	updatepwd();
 }
 
 int main(int argc, char const *argv[])

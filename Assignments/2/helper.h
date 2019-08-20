@@ -1,0 +1,2 @@
+void updatepwd();
+void initialize();
