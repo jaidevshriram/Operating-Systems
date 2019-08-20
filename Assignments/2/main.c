@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
 	while(1)
 	{
 
-		printf("\r\n<%s@%s:%s>  ", username, hostname, pwd);
+		printf("\r\n%s@%s:%s$ ", username, hostname, pwd);
 
 		if(!input_is_triggered())
 			continue;
