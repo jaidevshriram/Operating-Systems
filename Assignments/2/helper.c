@@ -18,3 +18,18 @@ void initialize()
 	gethostname(hostname, 100);
 	updatepwd();
 }
+
+char *translate_home(char *path)
+{
+    if(path[0]=='~')
+    {
+        path++;
+        updatepwd();
+        char newpath[1000] = "/home/";
+        strcat(newpath, getenv("USER"));
+        strcat(newpath, path);
+        path = newpath;
+    }
+
+    return path;
+}
