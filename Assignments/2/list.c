@@ -19,7 +19,7 @@ int ls(char **tokenized_input, char *input)
             {
                 for(int i=1; i<strlen(tokenized_input[1]); i++)
                 {
-                    if(tokenized_input[1][i]!='a' || tokenized_input[1][i]=='l')
+                    if(tokenized_input[1][i]!='a' && tokenized_input[1][i]!='l')
                         exit = 1;
                     else if (tokenized_input[1][i]=='a')
                         hidden = 1;
@@ -37,13 +37,14 @@ int ls(char **tokenized_input, char *input)
         case 3: {
             for(int i=1; i<3; i++)
             {
+                // printf("%s\n", tokenized_input[i]);
                 if(tokenized_input[i][0]=='-')
                 {
-                    for(int j=1; j<strlen(tokenized_input[1]); j++)
+                    for(int j=1; j<strlen(tokenized_input[i]); j++)
                     {
-                        if(tokenized_input[i][j]!='a' || tokenized_input[i][j]=='l')
+                        if(tokenized_input[i][j]!='a' && tokenized_input[i][j]!='l')
                             exit = 1;
-                        else if (tokenized_input[1][j]=='a')
+                        else if (tokenized_input[i][j]=='a')
                             hidden = 1;
                         else
                             longv = 1;
@@ -75,23 +76,32 @@ int ls(char **tokenized_input, char *input)
         return -1;
     }
 
-    if(dir)
-    {
-        struct stat statbuf;
-        if(stat(dirname, &statbuf)!=0)
-        {
-            printf("File/Directory %s does not exist.\n", tokenized_input[1]);
-            return -1;
-        }
+    if(dir == 0)
+        strcpy(dirname, ".");
 
+    struct stat statbuf;
+    if(stat(dirname, &statbuf)!=0)
+    {
+        printf("File/Directory %s does not exist.\n", dirname);
+        return -1;
+    }
+
+    if(S_ISDIR(statbuf.st_mode))
+    {
         DIR *directory_pointer = opendir(dirname);
         struct dirent *entry = readdir(directory_pointer);
-
         while(entry)
         {
-            printf("%s\n", entry->d_name);
+            if(hidden == 1 && entry->d_name[0]=='.')
+                printf("%s\n", entry->d_name);
+            else if(entry->d_name[0]!='.')
+                printf("%s\n", entry->d_name);
+            
             entry = readdir(directory_pointer);
         }
     }
-
+    else
+    {
+        printf("%s\n", dirname);
+    }
 }
