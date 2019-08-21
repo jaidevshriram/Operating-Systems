@@ -100,3 +100,35 @@ int custom_strcmp(const char a[], const char b[])
 
     return 0;
 }
+
+int count_tokens(char *input)
+{
+
+    int tokens = 0;
+
+	while(iswhitespace(*input))
+		input++;
+
+	char str[1000];
+	strcpy(str, input);
+
+	trimTrailing(str);
+
+	char **tokenized_input = (char **) malloc(1000);
+
+	char *input_part;
+
+	int position = 0;
+
+	input_part = strtok(str, " ");
+
+	while(input_part)
+	{
+		tokenized_input[position++] = malloc(strlen(input_part));
+        tokens++;
+		strcpy(tokenized_input[position-1], input_part);
+		input_part = strtok(NULL, " ");
+	}
+
+	return tokens;
+}
