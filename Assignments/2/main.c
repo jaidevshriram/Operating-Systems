@@ -9,6 +9,7 @@
 #include "pwd.h"
 #include "echo.h"
 #include "list.h"
+#include "system.h"
 
 extern char *username, hostname[100], pwd[1000];
 
@@ -63,7 +64,7 @@ void start_command_execution(char *input)
 	}
 
 	if(command_found == 0)
-		printf("Command does not exist.\n");
+		launch_command(tokenized_input);
 	else
 	{
 		switch((i-1))
@@ -72,6 +73,7 @@ void start_command_execution(char *input)
 			case 1: print_pwd(); break;
 			case 2: echo(input); break;
 			case 3: ls(tokenized_input, input); break;
+			default: launch_command(tokenized_input); break;
 		}
 	}	
 }
