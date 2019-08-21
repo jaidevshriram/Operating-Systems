@@ -4,24 +4,30 @@
 #include<unistd.h>
 #include<sys/stat.h>
 #include<sys/dir.h>
+#include<pwd.h>
+#include<grp.h>
 #include "helper.h"
 
 void permission_printer(struct stat statbuf, char output[])
 {   
+    strcpy(output, "");
+    
     if(S_ISDIR(statbuf.st_mode))
         strcat(output, "d");
     else
         strcat(output, "-");
 
-    statbuf.st_mode & S_IRUSR == 1 ? strcat(output, "r") : strcat(output, "-");
-    statbuf.st_mode & S_IWUSR == 1 ? strcat(output, "w") : strcat(output, "-");
-    statbuf.st_mode & S_IXUSR == 1 ? strcat(output, "x") : strcat(output, "-");
-    statbuf.st_mode & S_IRGRP == 1 ? strcat(output, "r") : strcat(output, "-");
-    statbuf.st_mode & S_IWGRP == 1 ? strcat(output, "w") : strcat(output, "-");
-    statbuf.st_mode & S_IXGRP == 1 ? strcat(output, "x") : strcat(output, "-");
-    statbuf.st_mode & S_IROTH == 1 ? strcat(output, "r") : strcat(output, "-");
-    statbuf.st_mode & S_IWOTH == 1 ? strcat(output, "w") : strcat(output, "-");
-    statbuf.st_mode & S_IXOTH == 1 ? strcat(output, "x") : strcat(output, "-");
+    statbuf.st_mode & S_IRUSR  ? strcat(output, "r") : strcat(output, "-");
+    statbuf.st_mode & S_IWUSR  ? strcat(output, "w") : strcat(output, "-");
+    statbuf.st_mode & S_IXUSR  ? strcat(output, "x") : strcat(output, "-");
+    statbuf.st_mode & S_IRGRP  ? strcat(output, "r") : strcat(output, "-");
+    statbuf.st_mode & S_IWGRP  ? strcat(output, "w") : strcat(output, "-");
+    statbuf.st_mode & S_IXGRP  ? strcat(output, "x") : strcat(output, "-");
+    statbuf.st_mode & S_IROTH  ? strcat(output, "r") : strcat(output, "-");
+    statbuf.st_mode & S_IWOTH  ? strcat(output, "w") : strcat(output, "-");
+    statbuf.st_mode & S_IXOTH  ? strcat(output, "x") : strcat(output, "-");
+
+    strcat(output, "\0");
 }
 
 int ls(char **tokenized_input, char *input)
@@ -113,7 +119,12 @@ int ls(char **tokenized_input, char *input)
             int display = 0;
 
             struct stat filestat;
-            stat(entry->d_name, &filestat);
+            if(stat(entry->d_name, &filestat)!=0)
+            {
+                printf("Unable to acces file %s\n", entry->d_name);
+                entry = readdir(directory_pointer);
+                continue;
+            }
 
             if(hidden == 1 && entry->d_name[0]=='.')
                 display = 1;
@@ -126,9 +137,13 @@ int ls(char **tokenized_input, char *input)
                     printf("%s\n", entry->d_name);
                 else
                 {
-                    char perm[100];
+                    char perm[1000];
                     permission_printer(filestat, perm);
-                    printf("%s %2d %s %s %10d %s %s\n", perm , filestat.st_nlink, filestat.st_uid, filestat.st_gid, filestat.st_atime, entry->d_name);
+
+                    struct passwd *user = getpwuid(filestat.st_uid);
+                    struct group *group = getgrgid(filestat.st_gid);
+
+                    printf("%s %2d %s %s %10d %d %s %s\n", perm , filestat.st_nlink, user->pw_name , group->gr_name, filestat.st_size, filestat.st_atime, entry->d_name);
                 }
             }
             
