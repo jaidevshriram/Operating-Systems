@@ -6,6 +6,24 @@
 #include<sys/dir.h>
 #include "helper.h"
 
+void permission_printer(struct stat statbuf, char output[])
+{   
+    if(S_ISDIR(statbuf.st_mode))
+        strcat(output, "d");
+    else
+        strcat(output, "-");
+
+    statbuf.st_mode & S_IRUSR == 1 ? strcat(output, "r") : strcat(output, "-");
+    statbuf.st_mode & S_IWUSR == 1 ? strcat(output, "w") : strcat(output, "-");
+    statbuf.st_mode & S_IXUSR == 1 ? strcat(output, "x") : strcat(output, "-");
+    statbuf.st_mode & S_IRGRP == 1 ? strcat(output, "r") : strcat(output, "-");
+    statbuf.st_mode & S_IWGRP == 1 ? strcat(output, "w") : strcat(output, "-");
+    statbuf.st_mode & S_IXGRP == 1 ? strcat(output, "x") : strcat(output, "-");
+    statbuf.st_mode & S_IROTH == 1 ? strcat(output, "r") : strcat(output, "-");
+    statbuf.st_mode & S_IWOTH == 1 ? strcat(output, "w") : strcat(output, "-");
+    statbuf.st_mode & S_IXOTH == 1 ? strcat(output, "x") : strcat(output, "-");
+}
+
 int ls(char **tokenized_input, char *input)
 {
     int def = 1, hidden = 0, longv = 0, dir = 0, exit = 0;
@@ -92,10 +110,27 @@ int ls(char **tokenized_input, char *input)
         struct dirent *entry = readdir(directory_pointer);
         while(entry)
         {
+            int display = 0;
+
+            struct stat filestat;
+            stat(entry->d_name, &filestat);
+
             if(hidden == 1 && entry->d_name[0]=='.')
-                printf("%s\n", entry->d_name);
+                display = 1;
             else if(entry->d_name[0]!='.')
-                printf("%s\n", entry->d_name);
+                display = 1;
+
+            if(display)
+            {
+                if(!longv)
+                    printf("%s\n", entry->d_name);
+                else
+                {
+                    char perm[100];
+                    permission_printer(filestat, perm);
+                    printf("%s %2d %s %s %10d %s %s\n", perm , filestat.st_nlink, filestat.st_uid, filestat.st_gid, filestat.st_atime, entry->d_name);
+                }
+            }
             
             entry = readdir(directory_pointer);
         }
