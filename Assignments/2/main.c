@@ -10,6 +10,7 @@
 #include "echo.h"
 #include "list.h"
 #include "system.h"
+#include "pinfo.h"
 
 extern char *username, hostname[100], pwd[1000];
 
@@ -52,8 +53,9 @@ void start_command_execution(char *input)
 	strcpy(command_list[1], "pwd");
 	strcpy(command_list[2], "echo");
 	strcpy(command_list[3], "ls");
+	strcpy(command_list[4], "pinfo");
 
-	int command_count = 4;
+	int command_count = 5;
 
 	int command_found = 0, i;
 
@@ -73,6 +75,7 @@ void start_command_execution(char *input)
 			case 1: print_pwd(); break;
 			case 2: echo(input); break;
 			case 3: ls(tokenized_input, input); break;
+			case 4: pinfo(tokenized_input, count_tokens(input)); break;
 			default: launch_command(tokenized_input); break;
 		}
 	}	
