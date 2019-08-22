@@ -147,7 +147,7 @@ int ls(char **tokenized_input, char *input)
                     char time[1000];
                     strftime(time, 1000, "%b %d %H:%M", localtime(&filestat.st_mtime));
 
-                    printf("%s %2d %s %s %10d %s %s %s\n", perm , filestat.st_nlink, user->pw_name , group->gr_name, filestat.st_size,  time, entry->d_name);
+                    printf("%s %2d %s %s %10d %s %s\n", perm , filestat.st_nlink, user->pw_name , group->gr_name, filestat.st_size,  time, entry->d_name);
                 }
             }
             
