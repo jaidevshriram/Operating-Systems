@@ -6,6 +6,7 @@
 #include<sys/dir.h>
 #include<pwd.h>
 #include<grp.h>
+#include<time.h>
 #include "helper.h"
 
 void permission_printer(struct stat statbuf, char output[])
@@ -143,7 +144,10 @@ int ls(char **tokenized_input, char *input)
                     struct passwd *user = getpwuid(filestat.st_uid);
                     struct group *group = getgrgid(filestat.st_gid);
 
-                    printf("%s %2d %s %s %10d %d %s %s\n", perm , filestat.st_nlink, user->pw_name , group->gr_name, filestat.st_size, filestat.st_atime, entry->d_name);
+                    char time[1000];
+                    strftime(time, 1000, "%b %d %H:%M", localtime(&filestat.st_mtime));
+
+                    printf("%s %2d %s %s %10d %s %s %s\n", perm , filestat.st_nlink, user->pw_name , group->gr_name, filestat.st_size,  time, entry->d_name);
                 }
             }
             
