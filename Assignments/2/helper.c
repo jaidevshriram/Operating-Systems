@@ -2,10 +2,53 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
+#include<sys/wait.h>
 
 #define STDIN 0
 
 char *username, hostname[100], pwd[1000];
+
+int pid_queue[1000];
+int pid_queue_count;
+
+void start_pid_queue()
+{
+    pid_queue_count = 0;
+}
+
+void add_pid_queue(int pid)
+{
+    pid_queue[pid_queue_count++] = pid;
+}
+
+void delete_pid_queue(int pid)
+{
+    int j=0; int new_pid_queue[1000];
+    for(int i=0; i<pid_queue_count; i++)
+        if(pid_queue[i]!=pid)
+            new_pid_queue[j++] = pid_queue[i];
+        else
+            pid_queue_count --;
+
+    for(int i=0; i<j; i++)
+        pid_queue[i] = new_pid_queue[i];
+}
+
+void check_pid_status()
+{
+    for(int i=0; i<pid_queue_count; i++)
+    {
+        int status;
+        __pid_t exit_value = waitpid(pid_queue[i], &status, WNOHANG);
+        if(exit_value == pid_queue[i])
+        {
+            printf("[%d] exited normally\n", pid_queue[i]);
+            delete_pid_queue(pid_queue[i]);
+        }
+        else if(exit_value!=0)
+            printf("[%d] exited with errors.\n", pid_queue[i]);
+    }
+}
 
 void updatepwd()
 {
@@ -17,6 +60,16 @@ void initialize()
 	username = getenv("USER");
 	gethostname(hostname, 100);
 	updatepwd();
+
+    start_pid_queue();
+}
+
+void update()
+{
+	username = getenv("USER");
+	gethostname(hostname, 100);
+	updatepwd();
+    check_pid_status();
 }
 
 char *translate_home(char *path)

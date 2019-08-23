@@ -27,6 +27,8 @@ int launch_command_bg(char **tokenized_input, int bg_pos)
         perror("Child process could not be created");
         return 0;
     }
+    else
+        add_pid_queue(pid);
 
     return 0;
 }

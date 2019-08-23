@@ -106,8 +106,10 @@ int main(int argc, char const *argv[])
 
 	while(1)
 	{
-		initialize();
-		printf("\r\n%s@%s:%s$ ", username, hostname, pwd);
+		update();
+		char prompt[1000];
+		sprintf(prompt, "\r\n%s@%s:%s$ ", username, hostname, pwd);
+		write(1, prompt, strlen(prompt));
 
 		if(!input_is_triggered())
 			continue;
