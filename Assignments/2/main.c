@@ -11,8 +11,23 @@
 #include "list.h"
 #include "system.h"
 #include "pinfo.h"
+#include "history.h"
 
 extern char *username, hostname[100], pwd[1000];
+
+char *clean_string(char *input)
+{
+	while(iswhitespace(*input))
+		input++;
+
+	char str[1000];
+	strcpy(str, input);
+
+	trimTrailing(str);
+	strcpy(str, input);
+
+	return input;
+}
 
 char **tokenize_input(char *input)
 {
@@ -94,6 +109,10 @@ void start_command_execution(char *input)
 			command_found = 1;
 	}
 
+	char *temp = malloc(1000);
+	strcpy(temp, input);
+	add_history(clean_string(temp));
+
 	if(command_found == 0)
 		launch_command(tokenized_input);
 	else
@@ -139,6 +158,7 @@ int main(int argc, char const *argv[])
 {
 
 	initialize();
+	initialize_history();
 
 	while(1)
 	{

@@ -52,5 +52,6 @@ void pinfo(char **tokenized_input, int token_count)
     {
         printf("\nError looking up PID %d", pid);
     }
-    
+
+    fclose(fd);    
 }
