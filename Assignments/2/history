@@ -1,6 +1,20 @@
-history 10
-history
+pinfo 123
+pinfo
+pinfo
+pinfo 2
+pinfo 1
+pinfo 10447
+pinfo
+pinfo 10347
+pinfo
+pinfo
+pinfo
+pinfo
+ls -l test/
 ls
+ls test
+cd ../
+cd test
+cat makefile
 npm -v
-history
 ls
