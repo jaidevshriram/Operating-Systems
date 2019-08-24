@@ -60,7 +60,7 @@ int launch_command(char **tokenized_input)
     {
         if(execvp(tokenized_input[0], tokenized_input) == -1)
         {
-            perror("Shell");
+            perror("Process couldn't be started");
             return -1;
         }
     }
