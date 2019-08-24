@@ -6,7 +6,7 @@
 
 #define STDIN 0
 
-char *username, hostname[100], pwd[1000];
+char *username, hostname[100], pwd[1000], initial_pwd[1000];
 
 int pid_queue[1000];
 int pid_queue_count;
@@ -59,8 +59,8 @@ void initialize()
 {
 	username = getenv("USER");
 	gethostname(hostname, 100);
+    getcwd(initial_pwd, 100);
 	updatepwd();
-
     start_pid_queue();
 }
 
@@ -74,23 +74,22 @@ void update()
 
 char *translate_home(char *path)
 {
+    char *newpath = malloc(1000);
+    strcpy(newpath, path);
+
     if(path[0]=='~' && strlen(path)!=1)
     {
         path++;
         updatepwd();
-        char newpath[1000] = "/home/";
-        strcat(newpath, getenv("USER"));
+        strcpy(newpath, initial_pwd);
         strcat(newpath, path);
-        path = newpath;
     }
     else if(path[0]=='~')
     {
-        char newpath[1000] = "/home/";
-        strcat(newpath, getenv("USER"));
-        path = newpath;
+        strcpy(newpath, initial_pwd);
     }
 
-    return path;
+    return newpath;
 }
 
 int iswhitespace(char c)
@@ -167,8 +166,6 @@ int count_tokens(char *input)
 
 	trimTrailing(str);
 
-	char **tokenized_input = (char **) malloc(1000);
-
 	char *input_part;
 
 	int position = 0;
@@ -177,9 +174,7 @@ int count_tokens(char *input)
 
 	while(input_part)
 	{
-		tokenized_input[position++] = malloc(strlen(input_part));
         tokens++;
-		strcpy(tokenized_input[position-1], input_part);
 		input_part = strtok(NULL, " ");
 	}
 

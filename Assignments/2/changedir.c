@@ -10,4 +10,5 @@ void cd(char **command)
 	char *newpath = translate_home(command[1]);
 	if(chdir(newpath)==-1)
 		perror("Shell");
+	free(newpath);
 }
