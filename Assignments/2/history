@@ -1,3 +1,6 @@
+echo hello there friend
+echo hello there
+echo hello
 pinfo 123
 pinfo
 pinfo
@@ -15,6 +18,3 @@ ls
 ls test
 cd ../
 cd test
-cat makefile
-npm -v
-ls
