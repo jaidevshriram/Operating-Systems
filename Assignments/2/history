@@ -1,1 +1,6 @@
+cat history
+cat makefile
+cd 2/
+cat makefile
+cd ../
 ls

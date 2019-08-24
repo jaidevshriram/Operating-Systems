@@ -109,21 +109,35 @@ void popfront()
 void initialize_history()
 {
 
+	// printf("1.");
+
     head = end = NULL;
 
     FILE *history = fopen("./history", "r");
+	
+	// printf("2.");
+
+	if(history == NULL)
+	{
+		perror("Shell:");
+		return;
+	}
 
     int c = 0;
     n = 0;
 
     char command[1000];
     
-    while(fscanf(history, "%[^\n]", command))
+    while(fgets(command, 1000, history) != NULL)
     {   
         c++;
         pushfront(command);
     }
-	
+
+	// printf("3.");
+
+	n = c;
+
 	fclose(history);
 }
 
@@ -131,9 +145,19 @@ void update_history()
 {
     FILE *history = fopen("./history", "w");
 
+	if(history == NULL)
+	{
+		perror("Shell:");
+		return;
+	}
+		
+
     struct node *temp = head;
     while(temp)
+	{
         fprintf(history, "%s\n", temp->command);
+		temp = temp->next;
+	}
 
     fclose(history);
 }
@@ -144,4 +168,38 @@ void add_history(char *command)
         popend();
     pushfront(command);
     update_history();
+}
+
+void history(char **tokenized_input, int count)
+{
+	if(count == 1)
+	{
+		struct node *temp = head;
+		int i=0;
+		while(temp && i<10)
+		{
+			printf("\n%s", temp->command);
+			temp = temp->next;
+			i++;
+		}
+	}
+	else
+	{
+		count = atoi(tokenized_input[1]);
+		if(count == 0)
+		{
+			printf("\nUsage: history <number of commands to be displayed>");
+			return;
+
+		}
+
+		struct node *temp = head;
+		int i=0;
+		while(temp && i<count)
+		{
+			printf("\n%s", temp->command);
+			temp = temp->next;
+			i++;
+		}
+	}
 }

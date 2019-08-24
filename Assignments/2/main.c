@@ -15,20 +15,6 @@
 
 extern char *username, hostname[100], pwd[1000];
 
-char *clean_string(char *input)
-{
-	while(iswhitespace(*input))
-		input++;
-
-	char str[1000];
-	strcpy(str, input);
-
-	trimTrailing(str);
-	strcpy(str, input);
-
-	return input;
-}
-
 char **tokenize_input(char *input)
 {
 	while(iswhitespace(*input))
@@ -98,8 +84,9 @@ void start_command_execution(char *input)
 	strcpy(command_list[2], "echo");
 	strcpy(command_list[3], "ls");
 	strcpy(command_list[4], "pinfo");
+	strcpy(command_list[5], "history");
 
-	int command_count = 5;
+	int command_count = 6;
 
 	int command_found = 0, i;
 
@@ -108,10 +95,6 @@ void start_command_execution(char *input)
 		if(strcmp(command, command_list[i]) == 0)
 			command_found = 1;
 	}
-
-	char *temp = malloc(1000);
-	strcpy(temp, input);
-	add_history(clean_string(temp));
 
 	if(command_found == 0)
 		launch_command(tokenized_input);
@@ -124,9 +107,12 @@ void start_command_execution(char *input)
 			case 2: echo(input); break;
 			case 3: ls(tokenized_input, input); break;
 			case 4: pinfo(tokenized_input, count_tokens(input)); break;
+			case 5: history(tokenized_input, count_tokens(input)); break;
 			default: launch_command(tokenized_input); break;
 		}
-	}	
+	}
+
+	add_history(input);
 }
 
 void start_command_chain(char *input)
