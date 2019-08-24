@@ -42,6 +42,35 @@ char **tokenize_input(char *input)
 	return tokenized_input;
 }
 
+char **tokenize_input_semicolin(char *input)
+{
+	while(iswhitespace(*input))
+		input++;
+
+	char str[1000];
+	strcpy(str, input);
+
+	trimTrailing(str);
+
+	char **tokenized_input = (char **) malloc(1000);
+
+	char *input_part;
+
+	int position = 0;
+
+	input_part = strtok(str, ";");
+
+	while(input_part)
+	{
+		tokenized_input[position++] = malloc(strlen(input_part));
+		strcpy(tokenized_input[position-1], input_part);
+		input_part = strtok(NULL, ";");
+	}
+
+	return tokenized_input;
+}
+
+
 void start_command_execution(char *input)
 {
 	char **tokenized_input = tokenize_input(input);
@@ -81,6 +110,13 @@ void start_command_execution(char *input)
 	}	
 }
 
+void start_command_chain(char *input)
+{
+	char **tokenized_input = tokenize_input_semicolin(input);
+	for (int i=0; tokenized_input[i]!=NULL; i++)
+		start_command_execution(tokenized_input[i]);
+}
+
 int input_is_triggered()
 {
 
@@ -94,7 +130,7 @@ int input_is_triggered()
 
 	getline(&input, &size, stdin);
 
-	start_command_execution(input);
+	start_command_chain(input);
 
 	return 1;
 }

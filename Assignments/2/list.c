@@ -102,8 +102,7 @@ int ls(char **tokenized_input, char *input)
     }
 
     if(dir == 0)
-        strcpy(dirname, ".");
-    strcat(dirname, "/");
+        strcpy(dirname, "./");
 
     struct stat statbuf;
     if(stat(dirname, &statbuf)!=0)
@@ -114,6 +113,8 @@ int ls(char **tokenized_input, char *input)
 
     if(S_ISDIR(statbuf.st_mode))
     {
+        strcat(dirname, "/");
+
         DIR *directory_pointer = opendir(dirname);
         struct dirent *entry = readdir(directory_pointer);
         while(entry)
