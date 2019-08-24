@@ -37,12 +37,7 @@ char **tokenize_input_echo(char *input)
 	return tokenized_input;
 }
 
-char *formattedecho(char *string) {}
-// {
-//     char *temp;
-//     strcpy(temp, string);
-//     return temp;
-// }
+char *formattedecho(char *string);
 
 void echo(char *command)
 {

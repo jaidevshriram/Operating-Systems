@@ -92,6 +92,33 @@ char *translate_home(char *path)
     return newpath;
 }
 
+char *home_based(char *path)
+{
+    char *newpath = malloc(1000);
+    if(strlen(path) >= strlen(initial_pwd))
+    {
+        if(strncmp(path, initial_pwd, strlen(initial_pwd)) == 0)
+        {
+            char *temp = malloc(1000);
+
+            int j = 0;
+            for(int i=strlen(initial_pwd); path[i]; i++)
+                temp[j++] = path[i];
+            temp[j]='\0';         
+            
+            strcpy(newpath, "~");
+            strcat(newpath, temp);
+
+            free(temp);
+            return newpath;
+        }
+        else
+            return path;
+    }
+    // else
+        return path;
+}
+
 int iswhitespace(char c)
 {
     if(c == ' ' || c == '\t' || c == '\n')
