@@ -48,7 +48,10 @@ int launch_command(char **tokenized_input)
     if(is_background)
     {
         if(launch_command_bg(tokenized_input, bg_char)==-1)
+        {
+            perror("Background proccess couldn't be initiated");
             return -1;
+        }
         return 0;
     }
 

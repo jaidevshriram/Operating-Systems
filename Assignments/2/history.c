@@ -106,6 +106,29 @@ void popfront()
     n--;
 }
 
+
+void update_history()
+{
+    FILE *history = fopen("./history", "w");
+
+	if(history == NULL)
+	{
+		perror("Shell:");
+		return;
+	}
+		
+
+    struct node *temp = head;
+    while(temp)
+	{
+		char *withoutnewline = strtok(temp->command, "\n");
+        fprintf(history, "%s\n", withoutnewline);
+		temp = temp->next;
+	}
+
+    fclose(history);
+}
+
 void initialize_history()
 {
 
@@ -131,35 +154,15 @@ void initialize_history()
     while(fgets(command, 1000, history) != NULL)
     {   
         c++;
-        pushfront(command);
+        pushend(command);
     }
 
 	// printf("3.");
 
 	n = c;
+	update_history();
 
 	fclose(history);
-}
-
-void update_history()
-{
-    FILE *history = fopen("./history", "w");
-
-	if(history == NULL)
-	{
-		perror("Shell:");
-		return;
-	}
-		
-
-    struct node *temp = head;
-    while(temp)
-	{
-        fprintf(history, "%s\n", temp->command);
-		temp = temp->next;
-	}
-
-    fclose(history);
 }
 
 void add_history(char *command)

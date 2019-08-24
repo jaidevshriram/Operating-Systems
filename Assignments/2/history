@@ -1,18 +1,6 @@
-history 20
+history 10
 history
 ls
-sls
-sl
-l
-ls
-ls
-ls
-ls
-history 20
-history 5
-history 1
-history
-history
 npm -v
-cat makefile
+history
 ls

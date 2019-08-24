@@ -151,7 +151,7 @@ int main(int argc, char const *argv[])
 		update();
 		char prompt[1000];
 		sprintf(prompt, "\r\n%s@%s:%s$ ", username, hostname, home_based(pwd));
-		printf("\n%s", prompt);
+		printf("%s", prompt);
 
 		if(!input_is_triggered())
 			continue;
