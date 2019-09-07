@@ -82,3 +82,30 @@ int launch_command(char **tokenized_input)
 
     return 0;
 }
+
+int fg(char **tokenized_input, int count)
+{
+    if(count<=2)
+    {
+        printf("Shell: Too few arguments\nUsage: fg <pid>\n");
+        return -1;
+    }
+
+    int pid = atoi(tokenized_input[1]);
+    if(pid == 0)
+    {
+        printf("\n Usage: fg <pid>");
+    }
+
+    if(check_pid_exist(pid) == 1)
+    {
+        kill(pid, SIGCONT);
+        delete_pid_queue(pid);
+        do
+        {
+            wpid = waitpid(pid, &status, WUNTRACED);
+        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+    else
+        printf("\npid does not exist");
+}

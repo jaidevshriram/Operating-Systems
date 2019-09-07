@@ -50,6 +50,17 @@ void check_pid_status()
     }
 }
 
+int check_pid_exist(int pid)
+{
+    for(int i=0; i<pid_queue_count; i++)
+    {
+        if(pid_queue[i] == pid)
+            return 1;
+    }
+
+    return -1;
+}
+
 void updatepwd()
 {
 	getcwd(pwd, 1000);
