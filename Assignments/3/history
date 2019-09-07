@@ -1,20 +1,20 @@
-c
+subl
+pinfo
+pinfo 2638
+subl &
+fg 2544
+subl &
+firefox &
+pinfo 2514
 ls
 ls
-ls
-[B[Bvd
+fg 2498
 htop &
-cd ../3
-cd 2
-cd ../
-ls
-echo hello there friend
-echo hello there
-echo hello
-pinfo 123
-pinfo
-pinfo
-pinfo 2
-pinfo 1
-pinfo 10447
-pinfo
+fg 2415
+vim &
+fg 224
+fg 2307
+vim &
+fg 2224
+vim &
+fg 2171

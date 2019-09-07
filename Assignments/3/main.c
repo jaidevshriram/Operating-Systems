@@ -85,8 +85,9 @@ void start_command_execution(char *input)
 	strcpy(command_list[3], "ls");
 	strcpy(command_list[4], "pinfo");
 	strcpy(command_list[5], "history");
+	strcpy(command_list[6], "fg");
 
-	int command_count = 6;
+	int command_count = 7;
 
 	int command_found = 0, i;
 
@@ -108,6 +109,7 @@ void start_command_execution(char *input)
 			case 3: ls(tokenized_input, input); break;
 			case 4: pinfo(tokenized_input, count_tokens(input)); break;
 			case 5: history(tokenized_input, count_tokens(input)); break;
+			case 6: fg(tokenized_input, count_tokens(input)); break;
 			default: launch_command(tokenized_input); break;
 		}
 	}

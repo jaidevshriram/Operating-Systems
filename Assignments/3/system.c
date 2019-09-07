@@ -4,6 +4,7 @@
 #include<unistd.h>
 #include<sys/stat.h>
 #include<sys/wait.h>
+#include<signal.h>
 #include "helper.h"
 
 int launch_command_bg(char **tokenized_input, int bg_pos)
@@ -16,6 +17,7 @@ int launch_command_bg(char **tokenized_input, int bg_pos)
     pid = fork();
     if(pid == 0)
     {
+        setpgid(0,0);
         if(execvp(tokenized_input[0], tokenized_input) == -1)
         {
             perror("Shell");
@@ -25,10 +27,13 @@ int launch_command_bg(char **tokenized_input, int bg_pos)
     else if (pid < 0)
     {
         perror("Child process could not be created");
-        return 0;
+        return -1;
     }
     else
+    {
+        printf("\n[+] %d", pid);
         add_pid_queue(pid);
+    }
 
     return 0;
 }
@@ -49,7 +54,7 @@ int launch_command(char **tokenized_input)
     {
         if(launch_command_bg(tokenized_input, bg_char)==-1)
         {
-            perror("Background proccess couldn't be initiated");
+            printf("\nBackground proccess couldn't be initiated");
             return -1;
         }
         return 0;
@@ -85,7 +90,7 @@ int launch_command(char **tokenized_input)
 
 int fg(char **tokenized_input, int count)
 {
-    if(count<=2)
+    if(count<2)
     {
         printf("Shell: Too few arguments\nUsage: fg <pid>\n");
         return -1;
@@ -101,9 +106,10 @@ int fg(char **tokenized_input, int count)
     {
         kill(pid, SIGCONT);
         delete_pid_queue(pid);
+        int status;
         do
         {
-            wpid = waitpid(pid, &status, WUNTRACED);
+          __pid_t  wpid = waitpid(pid, &status, WUNTRACED);
         } while (!WIFEXITED(status) && !WIFSIGNALED(status));
     }
     else
