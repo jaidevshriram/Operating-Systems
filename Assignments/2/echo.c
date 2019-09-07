@@ -37,16 +37,10 @@ char **tokenize_input_echo(char *input)
 	return tokenized_input;
 }
 
-char *formattedecho(char *string) {}
-// {
-//     char *temp;
-//     strcpy(temp, string);
-//     return temp;
-// }
+char *formattedecho(char *string);
 
 void echo(char *command)
 {
    	command = strtok(command, "\n");
     char **tokenized_input_echo = tokenize_input_echo(command);
-    // printf("%s\n", tokenized_input_echo[1]);
 }

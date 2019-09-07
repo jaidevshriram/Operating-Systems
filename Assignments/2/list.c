@@ -102,7 +102,7 @@ int ls(char **tokenized_input, char *input)
     }
 
     if(dir == 0)
-        strcpy(dirname, ".");
+        strcpy(dirname, "./");
 
     struct stat statbuf;
     if(stat(dirname, &statbuf)!=0)
@@ -113,16 +113,23 @@ int ls(char **tokenized_input, char *input)
 
     if(S_ISDIR(statbuf.st_mode))
     {
+        strcat(dirname, "/");
+
         DIR *directory_pointer = opendir(dirname);
         struct dirent *entry = readdir(directory_pointer);
         while(entry)
         {
             int display = 0;
 
+            char updated_file_path[1000];
+            strcpy(updated_file_path, dirname);
+
+            strcat(updated_file_path, entry->d_name);
+
             struct stat filestat;
-            if(stat(entry->d_name, &filestat)!=0)
+            if(stat(updated_file_path, &filestat)!=0)
             {
-                printf("Unable to acces file %s\n", entry->d_name);
+                printf("Unable to acces file %s\n", updated_file_path);
                 entry = readdir(directory_pointer);
                 continue;
             }
