@@ -27,6 +27,8 @@ int launch_command_bg(char **tokenized_input, int bg_pos)
         perror("Child process could not be created");
         return 0;
     }
+    else
+        add_pid_queue(pid);
 
     return 0;
 }
@@ -46,7 +48,10 @@ int launch_command(char **tokenized_input)
     if(is_background)
     {
         if(launch_command_bg(tokenized_input, bg_char)==-1)
+        {
+            perror("Background proccess couldn't be initiated");
             return -1;
+        }
         return 0;
     }
 
@@ -58,7 +63,7 @@ int launch_command(char **tokenized_input)
     {
         if(execvp(tokenized_input[0], tokenized_input) == -1)
         {
-            perror("Shell");
+            perror("Process couldn't be started");
             return -1;
         }
     }

@@ -8,5 +8,7 @@ void cd(char **command)
 {
 	command[1] = strtok(command[1], "\n");
 	char *newpath = translate_home(command[1]);
-	chdir(newpath);
+	if(chdir(newpath)==-1)
+		perror("Shell");
+	free(newpath);
 }

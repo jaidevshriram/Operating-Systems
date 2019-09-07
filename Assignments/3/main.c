@@ -11,6 +11,7 @@
 #include "list.h"
 #include "system.h"
 #include "pinfo.h"
+#include "history.h"
 
 extern char *username, hostname[100], pwd[1000];
 
@@ -42,6 +43,35 @@ char **tokenize_input(char *input)
 	return tokenized_input;
 }
 
+char **tokenize_input_semicolin(char *input)
+{
+	while(iswhitespace(*input))
+		input++;
+
+	char str[1000];
+	strcpy(str, input);
+
+	trimTrailing(str);
+
+	char **tokenized_input = (char **) malloc(1000);
+
+	char *input_part;
+
+	int position = 0;
+
+	input_part = strtok(str, ";");
+
+	while(input_part)
+	{
+		tokenized_input[position++] = malloc(strlen(input_part));
+		strcpy(tokenized_input[position-1], input_part);
+		input_part = strtok(NULL, ";");
+	}
+
+	return tokenized_input;
+}
+
+
 void start_command_execution(char *input)
 {
 	char **tokenized_input = tokenize_input(input);
@@ -54,8 +84,9 @@ void start_command_execution(char *input)
 	strcpy(command_list[2], "echo");
 	strcpy(command_list[3], "ls");
 	strcpy(command_list[4], "pinfo");
+	strcpy(command_list[5], "history");
 
-	int command_count = 5;
+	int command_count = 6;
 
 	int command_found = 0, i;
 
@@ -76,9 +107,19 @@ void start_command_execution(char *input)
 			case 2: echo(input); break;
 			case 3: ls(tokenized_input, input); break;
 			case 4: pinfo(tokenized_input, count_tokens(input)); break;
+			case 5: history(tokenized_input, count_tokens(input)); break;
 			default: launch_command(tokenized_input); break;
 		}
-	}	
+	}
+
+	add_history(input);
+}
+
+void start_command_chain(char *input)
+{
+	char **tokenized_input = tokenize_input_semicolin(input);
+	for (int i=0; tokenized_input[i]!=NULL; i++)
+		start_command_execution(tokenized_input[i]);
 }
 
 int input_is_triggered()
@@ -94,7 +135,7 @@ int input_is_triggered()
 
 	getline(&input, &size, stdin);
 
-	start_command_execution(input);
+	start_command_chain(input);
 
 	return 1;
 }
@@ -103,15 +144,17 @@ int main(int argc, char const *argv[])
 {
 
 	initialize();
+	initialize_history();
 
 	while(1)
 	{
-		initialize();
-		printf("\r\n%s@%s:%s$ ", username, hostname, pwd);
+		update();
+		char prompt[1000];
+		sprintf(prompt, "\r\n%s@%s:%s$ ", username, hostname, home_based(pwd));
+		printf("%s", prompt);
 
 		if(!input_is_triggered())
 			continue;
-
 	}
 
 	return 0;

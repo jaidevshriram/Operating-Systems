@@ -22,7 +22,8 @@ void pinfo(char **tokenized_input, int token_count)
     sprintf(stat_file, "/proc/%d/stat", pid);
 
     FILE *fd = fopen(stat_file, "r");
-    if(fd!=NULL)
+
+    if(fd != NULL)
     {
         char p_prop[PROP_SIZE];
         sprintf(p_prop, "%d", pid);
@@ -37,6 +38,7 @@ void pinfo(char **tokenized_input, int token_count)
         }
 
         sprintf(stat_file, "/proc/%d/exe", pid);
+        
         char exe_path[100];
         int exe_path_end = readlink(stat_file, exe_path, 1000);
         if(exe_path_end != -1)
@@ -47,10 +49,11 @@ void pinfo(char **tokenized_input, int token_count)
         else
             printf("\n Error finding path for PID %d", pid);
 
+        
+        fclose(fd);    
     }
     else
     {
         printf("\nError looking up PID %d", pid);
     }
-    
 }
