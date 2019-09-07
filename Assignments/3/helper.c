@@ -46,7 +46,10 @@ void check_pid_status()
             delete_pid_queue(pid_queue[i]);
         }
         else if(exit_value!=0)
+        {
             printf("[%d] exited with errors.\n", pid_queue[i]);
+            delete_pid_queue(pid_queue[i]);
+        }
     }
 }
 
