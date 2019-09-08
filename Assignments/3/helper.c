@@ -38,7 +38,7 @@ void check_pid_status()
 {
     for(int i=0; i<pid_queue_count; i++)
     {
-        int status;
+        __pid_t status;
         __pid_t exit_value = waitpid(pid_queue[i], &status, WNOHANG);
         if(exit_value == pid_queue[i])
         {

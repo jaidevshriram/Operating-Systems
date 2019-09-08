@@ -107,11 +107,31 @@ int fg(char **tokenized_input, int count)
         kill(pid, SIGCONT);
         delete_pid_queue(pid);
         int status;
-        do
-        {
-          __pid_t  wpid = waitpid(pid, &status, WUNTRACED);
-        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+			waitpid(-1,NULL,WUNTRACED);
     }
     else
         printf("\npid does not exist");
+}
+
+int bg(char **tokenized_input, int count)
+{
+    if(count<2)
+    {
+        printf("Shell: Too few arguments\nUsage: fg <pid>\n");
+        return -1;
+    }
+
+    int pid = atoi(tokenized_input[1]);
+    if(pid == 0)
+    {
+        printf("\n Usage: fg <pid>");
+    }
+
+    if(check_pid_exist(pid) == 1)
+    {
+		kill(pid, SIGCONT);   
+    }
+    else
+        printf("\npid does not exist");
+    
 }

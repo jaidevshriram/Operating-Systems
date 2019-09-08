@@ -1,3 +1,14 @@
+pinfo 3011
+fg 3011
+pinfo 3011
+ls
+vim &
+pinfo 2973
+fg 2973
+vi &
+vi *
+vim &
+vim
 subl
 pinfo
 pinfo 2638
@@ -7,14 +18,3 @@ subl &
 firefox &
 pinfo 2514
 ls
-ls
-fg 2498
-htop &
-fg 2415
-vim &
-fg 224
-fg 2307
-vim &
-fg 2224
-vim &
-fg 2171
