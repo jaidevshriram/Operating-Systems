@@ -12,6 +12,7 @@
 #include "system.h"
 #include "pinfo.h"
 #include "history.h"
+#include "catchsig.h"
 
 extern char *username, hostname[100], pwd[1000];
 
@@ -147,10 +148,13 @@ int main(int argc, char const *argv[])
 
 	initialize();
 	initialize_history();
+	initialize_signal_handlers();
+	set_shell_pid();
 
 	while(1)
 	{
 		update();
+		initialize_signal_handlers();
 		char prompt[1000];
 		sprintf(prompt, "\r\n%s@%s:%s$ ", username, hostname, home_based(pwd));
 		printf("%s", prompt);

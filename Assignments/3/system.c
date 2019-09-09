@@ -6,6 +6,7 @@
 #include<sys/wait.h>
 #include<signal.h>
 #include "helper.h"
+#include "catchsig.h"
 
 int launch_command_bg(char **tokenized_input, int bg_pos)
 {
@@ -18,6 +19,7 @@ int launch_command_bg(char **tokenized_input, int bg_pos)
     if(pid == 0)
     {
         setpgid(0,0);
+        initialize_signal_handlers();
         if(execvp(tokenized_input[0], tokenized_input) == -1)
         {
             perror("Shell");
@@ -66,6 +68,7 @@ int launch_command(char **tokenized_input)
     pid = fork();
     if(pid == 0)
     {
+        initialize_signal_handlers();
         if(execvp(tokenized_input[0], tokenized_input) == -1)
         {
             perror("Process couldn't be started");
