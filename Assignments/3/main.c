@@ -87,8 +87,9 @@ void start_command_execution(char *input)
 	strcpy(command_list[4], "pinfo");
 	strcpy(command_list[5], "history");
 	strcpy(command_list[6], "fg");
+	strcpy(command_list[7], "quit");
 
-	int command_count = 7;
+	int command_count = 8;
 
 	int command_found = 0, i;
 
@@ -111,6 +112,7 @@ void start_command_execution(char *input)
 			case 4: pinfo(tokenized_input, count_tokens(input)); break;
 			case 5: history(tokenized_input, count_tokens(input)); break;
 			case 6: fg(tokenized_input, count_tokens(input)); break;
+			case 7: _exit(0); break;
 			default: launch_command(tokenized_input); break;
 		}
 	}
@@ -154,6 +156,7 @@ int main(int argc, char const *argv[])
 	while(1)
 	{
 		update();
+		set_child_pid(0);
 		initialize_signal_handlers();
 		char prompt[1000];
 		sprintf(prompt, "\r\n%s@%s:%s$ ", username, hostname, home_based(pwd));

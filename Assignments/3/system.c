@@ -82,6 +82,7 @@ int launch_command(char **tokenized_input)
     }
     else 
     {
+        set_child_pid(pid);
         do
         {
             wpid = waitpid(pid, &status, WUNTRACED);

@@ -9,21 +9,35 @@ int shell_pid, ischild;
 
 void catch_ctrl_c(int temp)
 {
-	// printf("\nCTRL C caught\n");
-	// printf("this is being killed:%d\n", getpid());
+	if(getpid() == shell_pid && ischild!=0)
+    	kill(ischild, SIGINT);
+	signal(SIGINT, catch_ctrl_c);
+	fflush(stdout);
+}
 
-	if(getpid() != shell_pid)
-    	kill(getpid(), SIGKILL);
-	// else
-	// 	_exit(1);
+void catch_ctrl_z(int temp)
+{
+	if(getpid() == shell_pid && ischild!=0)
+	{
+		kill(ischild, SIGTSTP);
+		kill(ischild, SIGINT);
+	}
+	fflush(stdout);
+	signal(SIGTSTP, catch_ctrl_z);
 }
 
 void initialize_signal_handlers()
 {
 	signal(SIGINT, catch_ctrl_c);
+	signal(SIGTSTP, catch_ctrl_z);
 }
 
 void set_shell_pid()
 {
 	shell_pid = getpid();
+}
+
+void set_child_pid(int child_pid)
+{
+	ischild = child_pid;
 }
