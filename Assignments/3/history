@@ -1,3 +1,14 @@
+cat makefile
+cat makefile
+cd ../
+cat ../makefile
+clear
+cd test
+ls
+clear
+mkdir test
+ls
+sort < makefile
 ls
 ls
 clear
@@ -7,14 +18,3 @@ clear
 htop
 htop
 clear
-htop
-lsclear
-htop
-htop
-htop
-OAOAOAOAOAOAOAOAOAOAOAOAOAOAOAOAOAOBOBOBOBOBOBOBOBOBOBOBOBOBOBOBOBOBOBOBOBOBOBOBlslslslslslslslslslslllquit
-htop
-htop
-htop
-clear
-ls
