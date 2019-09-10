@@ -1,3 +1,6 @@
+sort
+wc -l
+cat makefile
 cat makefile
 cat makefile
 cd ../
@@ -14,7 +17,4 @@ ls
 clear
 htop
 ls
-clear
-htop
-htop
 clear

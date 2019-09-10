@@ -142,7 +142,7 @@ void start_redirect_handler(char *input)
 		if(i == countsimple - 1)
 		{
 			if(outfile)
-				fdout = open(outfile_name, O_CREAT);
+				fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
 			else
 				fdout = dup(tempout);
 		}
