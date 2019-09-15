@@ -93,125 +93,19 @@ void start_command_execution(char *input)
 	free(tokenized_input);
 }
 
+void checkinput(char *input)
+{
+	char **tokenized_input = tokenize_input(input, "<");
+	
+	free(tokenized_input);
+}
+
 void start_redirect_handler(char *input)
 {
-	char **tokenized_input_redirect = tokenize_input(input, "<");
-	
-	char **tokenized_output_redirect;
-	char **tokenized_input;
+	char *input_file = malloc(1000);
+	int infile = checkinput(input, input_file);	
 
-	int infile = 0;
-	char *infile_name = malloc(1000);
-	for(infile=0; tokenized_input_redirect[infile]!=NULL; infile++)
-		printf("I: %d %s", infile, tokenized_input_redirect[infile] );
-
-	if(infile<=1)
-	{
-		tokenized_output_redirect = tokenize_input(tokenized_input_redirect[0], ">");
-		infile = 0;
-	}
-	else
-	{
-		printf("There is an input\n");
-		infile = 1;
-		char *temp = malloc(1000);
-		char **extracted_file_from_tokens = tokenize_input(tokenized_input_redirect[1], " \r\t");
-		
-		strcpy(temp, extracted_file_from_tokens[0]);
-		removewhitespace(temp, infile_name);
-		
-		free(temp);
-		free(extracted_file_from_tokens);
-
-		//Other initializations
-		tokenized_output_redirect = tokenize_input(tokenized_input_redirect[1], ">");
-	}
-
-	int outfile = 0;
-	char *outfile_name = malloc(1000);
-	for(outfile = 0; tokenized_output_redirect[outfile]!=NULL; outfile++)
-		printf("O: %d %s\n", outfile, tokenized_output_redirect[outfile]);
-
-	if(outfile<=1)
-		outfile = 0;
-	else
-	{
-		printf("There is an output\n");
-		outfile = 1;
-		char *temp = malloc(1000);
-		strcpy(temp, tokenized_output_redirect[1]);
-		removewhitespace(temp, outfile_name);
-		free(temp);
-	}
-
-	int tempin = dup(0);
-	int tempout = dup(1);
-
-	int fdin;
-	if(infile)
-		fdin = open(infile_name, O_RDONLY);
-	else
-		fdin = dup(tempin);
-
-	//Initialize Simple Command list
-	tokenized_input = tokenize_input(tokenized_output_redirect[0], "|");
-
-	int ret, fdout = dup(tempout), countsimple = 0;
-
-	for(countsimple = 0; tokenized_input[countsimple]!=NULL; countsimple++)
-		printf("%d %s\n", countsimple+1, tokenized_input[countsimple]);
-
-	for (int i=0; tokenized_input[i]!=NULL; i++)
-	{
-		if(fdin == -1)
-		{
-			fprintf(stderr, "Unable to open input file %s\n", infile_name);
-			return -1;
-		}
-		
-		dup2(fdin, 0);
-		close(fdin);
-
-		if(i==0 && infile)
-		{
-			// fprintf(stderr, "2. %s is being executed\n", tokenized_input_redirect[0]);
-			start_command_execution(tokenized_input_redirect[0]);
-			continue;
-		}
-
-		if(i == countsimple - 1)
-		{
-			if(outfile)
-				fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
-			else
-				fdout = dup(tempout);
-		}
-		else
-		{
-			int fdpipe[2];
-			pipe(fdpipe);
-			fdout = fdpipe[1];
-			fdin = fdpipe[0];
-		}
-
-		dup2(fdout, 1);
-		close(fdout);
-
-		fprintf(stderr, "%s is being executed\n", tokenized_input[i]);
-		start_command_execution(tokenized_input[i]);
-	}
-
-	dup2(tempin, 0);
-	dup2(tempout, 1);
-	
-	close(tempin);
-	close(tempout);
-
-	free(infile_name);
-	free(outfile_name);
-	free(tokenized_input);
-	free(tokenized_input_redirect);
-	free(tokenized_output_redirect);
+	free(input_file);
 }
 
 void start_command_chain(char *input)
