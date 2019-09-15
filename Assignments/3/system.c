@@ -72,6 +72,7 @@ int launch_command(char **tokenized_input)
         if(execvp(tokenized_input[0], tokenized_input) == -1)
         {
             perror("Process couldn't be started");
+            // printf("%s\n", tokenized_input[0]);
             return -1;
         }
     }

@@ -11,3 +11,4 @@ void add_pid_queue(int pid);
 void check_pid_status(int pid);
 int check_pid_exist(int pid);
 void delete_pid_queue(int pid);
+void removewhitespace(char *old, char *new);

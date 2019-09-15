@@ -1,20 +1,20 @@
-ls ~
-cd ~
-ls ~
-cd ../
-ls ~
-ls ~
-cd ~
-cd ../
-cd ~
-code .
-man 2 open
-rm sample
-ls
-ls
+sort 
+makefile
+makefile
+makefile
+makefile
+makefile
+makefile
+makefile
+makefile
+makefile
+makefile
+sort
+sort
 clear
-clear
-cat sample
-cat smaple
-cat test
 ls
+ls
+ls
+ls ~
+cd ~
+ls ~

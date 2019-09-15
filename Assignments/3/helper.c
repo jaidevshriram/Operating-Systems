@@ -221,3 +221,11 @@ int count_tokens(char *input)
 
 	return tokens;
 }
+
+void removewhitespace(char *old, char *new)
+{
+    while(iswhitespace(*old))
+		old++;
+	strcpy(new, old);
+	trimTrailing(new);
+}

@@ -90,16 +90,19 @@ void start_command_execution(char *input)
 	}
 
 	add_history(input);
+	free(tokenized_input);
 }
 
 void start_redirect_handler(char *input)
 {
 	char **tokenized_input_redirect = tokenize_input(input, "<");
-	char **tokenized_output_redirect = tokenize_input(tokenized_input_redirect[0], ">");
+	char **extracted_file_from_tokens = tokenize_input(tokenized_input_redirect[1], " \r\t");
+	
+	char **tokenized_output_redirect = tokenize_input(tokenized_input_redirect[1], ">");
 	char **tokenized_input = tokenize_input(tokenized_output_redirect[0], "|");
 
 	int infile = 0;
-	char infile_name[1000];
+	char *infile_name = malloc(1000);
 	for(infile=0; tokenized_input_redirect[infile]!=NULL; infile++);
 
 	if(infile<=1)
@@ -107,11 +110,14 @@ void start_redirect_handler(char *input)
 	else
 	{
 		infile = 1;
-		strcpy(infile_name, tokenized_input_redirect[1]);
+		char *temp = malloc(1000);
+		strcpy(temp, extracted_file_from_tokens[0]);
+		removewhitespace(temp, infile_name);
+		free(temp);
 	}
 
 	int outfile = 0;
-	char outfile_name[1000];
+	char *outfile_name = malloc(1000);
 	for(outfile = 0; tokenized_output_redirect[outfile]!=NULL; outfile++);
 
 	if(outfile<=1)
@@ -119,7 +125,10 @@ void start_redirect_handler(char *input)
 	else
 	{
 		outfile = 1;
-		strcpy(outfile_name, tokenized_output_redirect[1]);
+		char *temp = malloc(1000);
+		strcpy(temp, tokenized_output_redirect[1]);
+		removewhitespace(temp, outfile_name);
+		free(temp);
 	}
 
 	int tempin = dup(0);
@@ -133,17 +142,25 @@ void start_redirect_handler(char *input)
 
 	int ret, fdout, countsimple = 0;
 	for(countsimple = 0; tokenized_input[countsimple]!=NULL; countsimple++);
+	printf("%d is count\n", countsimple);
 
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
 		if(fdin == -1)
 		{
-			printf("Unable to open input file\n");
+			fprintf(stderr, "Unable to open input file %s\n", infile_name);
 			return -1;
 		}
 		
 		dup2(fdin, 0);
 		close(fdin);
+
+		if(i==0 && infile)
+		{
+			fprintf(stderr, "2. %s is being executed\n", tokenized_input_redirect[0]);
+			start_command_execution(tokenized_input_redirect[0]);
+			continue;
+		}
 
 		if(i == countsimple - 1)
 		{
@@ -163,13 +180,22 @@ void start_redirect_handler(char *input)
 		dup2(fdout, 1);
 		close(fdout);
 
+		fprintf(stderr, "%s is being executed\n", tokenized_input[i]);
 		start_command_execution(tokenized_input[i]);
 	}
 
 	dup2(tempin, 0);
 	dup2(tempout, 1);
+	
 	close(tempin);
 	close(tempout);
+
+	free(infile_name);
+	free(outfile_name);
+	free(tokenized_input);
+	free(tokenized_input_redirect);
+	free(tokenized_output_redirect);
+	free(extracted_file_from_tokens);
 }
 
 void start_command_chain(char *input)
@@ -177,11 +203,11 @@ void start_command_chain(char *input)
 	char **tokenized_input = tokenize_input(input, ";");
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 		start_redirect_handler(tokenized_input[i]);
+	free(tokenized_input);
 }
 
 int input_is_triggered()
 {
-
 	unsigned long int size = 1000;
 	char *input = (char *) malloc(size);
 
@@ -193,7 +219,7 @@ int input_is_triggered()
 	getline(&input, &size, stdin);
 
 	start_command_chain(input);
-
+	free(input);
 	return 1;
 }
 
