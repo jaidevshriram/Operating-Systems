@@ -1,3 +1,7 @@
+clear
+cd ../../
+ls ~
+cd ~
 ls ~
 cd ../
 ls ~
@@ -14,7 +18,3 @@ clear
 clear
 cat sample
 cat smaple
-cat test
-ls
-clear
-cat ` sample`
