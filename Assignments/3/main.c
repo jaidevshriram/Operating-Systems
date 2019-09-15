@@ -96,34 +96,47 @@ void start_command_execution(char *input)
 void start_redirect_handler(char *input)
 {
 	char **tokenized_input_redirect = tokenize_input(input, "<");
-	char **extracted_file_from_tokens = tokenize_input(tokenized_input_redirect[1], " \r\t");
 	
-	char **tokenized_output_redirect = tokenize_input(tokenized_input_redirect[1], ">");
-	char **tokenized_input = tokenize_input(tokenized_output_redirect[0], "|");
+	char **tokenized_output_redirect;
+	char **tokenized_input;
 
 	int infile = 0;
 	char *infile_name = malloc(1000);
-	for(infile=0; tokenized_input_redirect[infile]!=NULL; infile++);
+	for(infile=0; tokenized_input_redirect[infile]!=NULL; infile++)
+		printf("I: %d %s", infile, tokenized_input_redirect[infile] );
 
 	if(infile<=1)
+	{
+		tokenized_output_redirect = tokenize_input(tokenized_input_redirect[0], ">");
 		infile = 0;
+	}
 	else
 	{
+		printf("There is an input\n");
 		infile = 1;
 		char *temp = malloc(1000);
+		char **extracted_file_from_tokens = tokenize_input(tokenized_input_redirect[1], " \r\t");
+		
 		strcpy(temp, extracted_file_from_tokens[0]);
 		removewhitespace(temp, infile_name);
+		
 		free(temp);
+		free(extracted_file_from_tokens);
+
+		//Other initializations
+		tokenized_output_redirect = tokenize_input(tokenized_input_redirect[1], ">");
 	}
 
 	int outfile = 0;
 	char *outfile_name = malloc(1000);
-	for(outfile = 0; tokenized_output_redirect[outfile]!=NULL; outfile++);
+	for(outfile = 0; tokenized_output_redirect[outfile]!=NULL; outfile++)
+		printf("O: %d %s\n", outfile, tokenized_output_redirect[outfile]);
 
 	if(outfile<=1)
 		outfile = 0;
 	else
 	{
+		printf("There is an output\n");
 		outfile = 1;
 		char *temp = malloc(1000);
 		strcpy(temp, tokenized_output_redirect[1]);
@@ -140,9 +153,13 @@ void start_redirect_handler(char *input)
 	else
 		fdin = dup(tempin);
 
-	int ret, fdout, countsimple = 0;
-	for(countsimple = 0; tokenized_input[countsimple]!=NULL; countsimple++);
-	printf("%d is count\n", countsimple);
+	//Initialize Simple Command list
+	tokenized_input = tokenize_input(tokenized_output_redirect[0], "|");
+
+	int ret, fdout = dup(tempout), countsimple = 0;
+
+	for(countsimple = 0; tokenized_input[countsimple]!=NULL; countsimple++)
+		printf("%d %s\n", countsimple+1, tokenized_input[countsimple]);
 
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
@@ -157,7 +174,7 @@ void start_redirect_handler(char *input)
 
 		if(i==0 && infile)
 		{
-			fprintf(stderr, "2. %s is being executed\n", tokenized_input_redirect[0]);
+			// fprintf(stderr, "2. %s is being executed\n", tokenized_input_redirect[0]);
 			start_command_execution(tokenized_input_redirect[0]);
 			continue;
 		}
@@ -195,7 +212,6 @@ void start_redirect_handler(char *input)
 	free(tokenized_input);
 	free(tokenized_input_redirect);
 	free(tokenized_output_redirect);
-	free(extracted_file_from_tokens);
 }
 
 void start_command_chain(char *input)
