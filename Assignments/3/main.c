@@ -136,6 +136,12 @@ void start_redirect_handler(char *input)
 
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
+		if(fdin == -1)
+		{
+			printf("Unable to open input file\n");
+			return -1;
+		}
+		
 		dup2(fdin, 0);
 		close(fdin);
 

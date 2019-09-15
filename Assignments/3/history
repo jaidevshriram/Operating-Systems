@@ -1,20 +1,20 @@
-sort
-wc -l
-cat makefile
-cat makefile
-cat makefile
+ls ~
+cd ~
+ls ~
 cd ../
-cat ../makefile
-clear
-cd test
+ls ~
+ls ~
+cd ~
+cd ../
+cd ~
+code .
+man 2 open
+rm sample
+ls
 ls
 clear
-mkdir test
-ls
-sort < makefile
-ls
-ls
 clear
-htop
+cat sample
+cat smaple
+cat test
 ls
-clear

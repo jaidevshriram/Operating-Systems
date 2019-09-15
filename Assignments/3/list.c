@@ -34,7 +34,7 @@ void permission_printer(struct stat statbuf, char output[])
 int ls(char **tokenized_input, char *input)
 {
     int def = 1, hidden = 0, longv = 0, dir = 0, exit = 0;
-    char dirname[100];
+    char *dirname = malloc(1000);
 
     switch(count_tokens(input))
     {
@@ -95,6 +95,8 @@ int ls(char **tokenized_input, char *input)
         }
     }
 
+    dirname = translate_home(dirname);
+
     if(exit)
     {
         printf("Incorrect input format for ls. Please check flags\n");
@@ -108,6 +110,7 @@ int ls(char **tokenized_input, char *input)
     if(stat(dirname, &statbuf)!=0)
     {
         printf("File/Directory %s does not exist.\n", dirname);
+        free(dirname);
         return -1;
     }
 
@@ -165,4 +168,6 @@ int ls(char **tokenized_input, char *input)
     {
         printf("%s\n", dirname);
     }
+
+    free(dirname);
 }
