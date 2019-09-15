@@ -102,8 +102,7 @@ void start_redirect_handler(char *input)
 
 	int infile = 0;
 	char *infile_name = malloc(1000);
-	for(infile=0; tokenized_input_redirect[infile]!=NULL; infile++)
-		printf("I: %d %s", infile, tokenized_input_redirect[infile] );
+	for(infile=0; tokenized_input_redirect[infile]!=NULL; infile++);
 
 	if(infile<=1)
 	{
@@ -112,7 +111,6 @@ void start_redirect_handler(char *input)
 	}
 	else
 	{
-		printf("There is an input\n");
 		infile = 1;
 		char *temp = malloc(1000);
 		char **extracted_file_from_tokens = tokenize_input(tokenized_input_redirect[1], " \r\t");
@@ -129,14 +127,12 @@ void start_redirect_handler(char *input)
 
 	int outfile = 0;
 	char *outfile_name = malloc(1000);
-	for(outfile = 0; tokenized_output_redirect[outfile]!=NULL; outfile++)
-		printf("O: %d %s\n", outfile, tokenized_output_redirect[outfile]);
+	for(outfile = 0; tokenized_output_redirect[outfile]!=NULL; outfile++);
 
 	if(outfile<=1)
 		outfile = 0;
 	else
 	{
-		printf("There is an output\n");
 		outfile = 1;
 		char *temp = malloc(1000);
 		strcpy(temp, tokenized_output_redirect[1]);
@@ -148,6 +144,7 @@ void start_redirect_handler(char *input)
 	int tempout = dup(1);
 
 	int fdin;
+
 	if(infile)
 		fdin = open(infile_name, O_RDONLY);
 	else
@@ -159,7 +156,7 @@ void start_redirect_handler(char *input)
 	int ret, fdout = dup(tempout), countsimple = 0;
 
 	for(countsimple = 0; tokenized_input[countsimple]!=NULL; countsimple++)
-		printf("%d %s\n", countsimple+1, tokenized_input[countsimple]);
+		printf("%d: %s", countsimple, tokenized_input[countsimple]);
 
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
@@ -175,6 +172,14 @@ void start_redirect_handler(char *input)
 		if(i==0 && infile)
 		{
 			// fprintf(stderr, "2. %s is being executed\n", tokenized_input_redirect[0]);
+			if(outfile)
+				fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
+			else
+				fdout = dup(tempout);
+
+			dup2(fdout, 1);
+			close(fdout);
+
 			start_command_execution(tokenized_input_redirect[0]);
 			continue;
 		}
@@ -197,7 +202,7 @@ void start_redirect_handler(char *input)
 		dup2(fdout, 1);
 		close(fdout);
 
-		fprintf(stderr, "%s is being executed\n", tokenized_input[i]);
+		// fprintf(stderr, "%s is being executed\n", tokenized_input[i]);
 		start_command_execution(tokenized_input[i]);
 	}
 
@@ -206,12 +211,6 @@ void start_redirect_handler(char *input)
 	
 	close(tempin);
 	close(tempout);
-
-	free(infile_name);
-	free(outfile_name);
-	free(tokenized_input);
-	free(tokenized_input_redirect);
-	free(tokenized_output_redirect);
 }
 
 void start_command_chain(char *input)

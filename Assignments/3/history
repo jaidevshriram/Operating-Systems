@@ -1,20 +1,20 @@
- µ·óÿ
-ls
-ls
- uóÿ
-ls
-ls
- £çÿ
-ls
-ls
- Õ¾Óÿ
-ls
-ls
-àŠy»ÿ
-@={»ÿ
-(null)
-ls
- µz»ÿ
-ls
+ wc -l
+cat makefile 
+ wc -l
+cat makefile 
+test2
+diff test1 test2
+diff test test2
+test2
+clear
+cat test2
 ls
 sort 
+ls
+cat test
+sort 
+clear
+ls
+ls
+ls
+ls
