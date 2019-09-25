@@ -1,3 +1,16 @@
+ grep "5"
+ wc -l 
+cat makefile 
+cat makefile
+cat makefile
+cat makefile
+q
+Ð­A
+cat makefile
+cat makefile
+ÐÛòÿ
+cat makefile
+cat makefile
  wc -l
 cat makefile 
  wc -l
@@ -5,16 +18,3 @@ cat makefile
 cat makefile
 cat makefile
 echo hello
-echo hello
-ls
-ls
-echo hello
-ls -l
-ls -l
-ls -l
-echo hello
-echo hello
-ls
-ls
-ls
-ls

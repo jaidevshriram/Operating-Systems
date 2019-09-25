@@ -243,9 +243,10 @@ void start_command_chain(char *input)
 		fprintf(stderr, "%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
 		
 		start_redirect_handler(tokenized_input[i]);
+		free(tokenized_input[i]);
 	}
 
-	// free(tokenized_input);y76
+	// free(tokenized_input);
 }
 
 int input_is_triggered()
