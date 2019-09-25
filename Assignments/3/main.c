@@ -229,6 +229,7 @@ int input_is_triggered()
 	if(input == NULL)
 	{
 		perror("Unable to allocate memory");
+		return -1;
 	}
 
 	getline(&input, &size, stdin);
