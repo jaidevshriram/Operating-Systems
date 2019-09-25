@@ -167,7 +167,7 @@ void start_redirect_handler(char *tempinput)
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
 		int is_error = 0;
-		
+		fprintf(stderr, "test1\n");
 		if(fdin == -1)
 		{
 			fprintf(stderr, "Unable to open input file %s\n", infile_name);
@@ -198,6 +198,7 @@ void start_redirect_handler(char *tempinput)
 				fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
 			else
 				fdout = dup(tempout);
+			fprintf(stderr, "test2\n");
 		}
 		else
 		{
@@ -210,6 +211,7 @@ void start_redirect_handler(char *tempinput)
 		dup2(fdout, 1);
 		close(fdout);
 
+		fprintf(stderr, "test3\n");
 		// fprintf(stderr, "%s is being executed\n", tokenized_input[i]);
 		is_error = start_command_execution(tokenized_input[i]);
 
@@ -227,18 +229,27 @@ void start_redirect_handler(char *tempinput)
 	close(tempout);
 
 	free(input);
+			fprintf(stderr, "test4\n");
 }
 
 void start_command_chain(char *input)
 {
 	char **tokenized_input = tokenize_input(input, ";");
+
+	for(int i=0; tokenized_input[i]!=NULL; i++)
+		printf("%d:%s\n", i, tokenized_input[i]);
 	
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
-		printf("%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
+		fflush(stdin); 
+		fflush(stdout);
+
+		fprintf(stderr, "%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
+		
 		start_redirect_handler(tokenized_input[i]);
 	}
 
+	fprintf(stderr, "test5\n");
 	free(tokenized_input);
 }
 
@@ -255,7 +266,7 @@ int input_is_triggered()
 
 	getline(&input, &size, stdin);
 
-	printf("INPUT RECIEVED IS :%s", input);
+	fprintf(stderr, "INPUT RECIEVED IS :%s", input);
 	start_command_chain(input);
 	free(input);
 	return 1;
@@ -276,7 +287,7 @@ int main(int argc, char const *argv[])
 		initialize_signal_handlers();
 		char prompt[1000];
 		sprintf(prompt, "\r\n%s@%s:%s$ ", username, hostname, home_based(pwd));
-		printf("%s", prompt);
+		fprintf(stderr, "%s", prompt);
 
 		if(!input_is_triggered())
 			continue;
