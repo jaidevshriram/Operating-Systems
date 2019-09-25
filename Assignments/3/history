@@ -1,20 +1,20 @@
+ wc -l
+cat makefile 
+ wc -l
+cat makefile 
 cat makefile
 cat makefile
-cat makefile
-cat makefile
-cat makefile
-cat makefile
-cat makefile
-cat makefile
-cat makefile
-grep "hello" makefile
-grep "hello" makefile
-fflush(stdout)
-fflush(stdin)
-grep "hello" makefile
-grep "hello" makefile
-cat makefile
-cat makefile
-cat makefile
-cat makefile
-vim
+echo hello
+echo hello
+ls
+ls
+echo hello
+ls -l
+ls -l
+ls -l
+echo hello
+echo hello
+ls
+ls
+ls
+ls
