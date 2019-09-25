@@ -23,7 +23,7 @@ int set_env(char **tokenized_input, int count)
     return 0;    
 }
 
-int unsetset_env(char **tokenized_input, int count)
+int unset_env(char **tokenized_input, int count)
 {
     if(count!=2)
     {

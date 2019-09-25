@@ -89,7 +89,7 @@ int start_command_execution(char *input)
 			case 6: err = fg(tokenized_input, count_tokens(input)); break;
 			case 7: _exit(0); break;
 			case 8: set_env(tokenized_input, count_tokens(input)); break;
-			case 9: unsert_env(tokenized_input, count_tokens); break;
+			case 9: unset_env(tokenized_input, count_tokens(input)); break;
 			default: err = launch_command(tokenized_input); break;
 		}
 	}
