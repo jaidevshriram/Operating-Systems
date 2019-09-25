@@ -1,20 +1,20 @@
- grep "5"
- wc -l 
-cat makefile 
-cat makefile
-cat makefile
-cat makefile
 q
-Ð­A
-cat makefile
-cat makefile
-ÐÛòÿ
-cat makefile
-cat makefile
+cat out.txt
+ grep .c
+ls 
+ grep .c
+ls 
+ grep
+ls 
  wc -l
-cat makefile 
- wc -l
-cat makefile 
-cat makefile
-cat makefile
-echo hello
+ls 
+ grep "main"
+ls 
+cat out.txt
+ls
+ grep *.c
+ls 
+ls
+pinfo 2616
+vim &
+q

@@ -116,7 +116,7 @@ int fg(char **tokenized_input, int count)
         kill(pid, SIGCONT);
         delete_pid_queue(pid);
         int status;
-			waitpid(-1,NULL,WUNTRACED);
+		waitpid(-1,&status,WUNTRACED);
     }
     else
         printf("\npid does not exist");

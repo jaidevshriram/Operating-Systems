@@ -14,6 +14,7 @@
 #include "pinfo.h"
 #include "history.h"
 #include "catchsig.h"
+#include "env.h"
 
 extern char *username, hostname[100], pwd[1000];
 
@@ -60,8 +61,10 @@ int start_command_execution(char *input)
 	strcpy(command_list[5], "history");
 	strcpy(command_list[6], "fg");
 	strcpy(command_list[7], "quit");
+	strcpy(command_list[8], "setenv");
+	strcpy(command_list[9], "unsetenv");
 
-	int command_count = 8;
+	int command_count = 10;
 
 	int command_found = 0, i, err;
 
@@ -85,6 +88,8 @@ int start_command_execution(char *input)
 			case 5: err = history(tokenized_input, count_tokens(input)); break;
 			case 6: err = fg(tokenized_input, count_tokens(input)); break;
 			case 7: _exit(0); break;
+			case 8: set_env(tokenized_input, count_tokens(input)); break;
+			case 9: unsert_env(tokenized_input, count_tokens); break;
 			default: err = launch_command(tokenized_input); break;
 		}
 	}
@@ -178,7 +183,7 @@ void start_redirect_handler(char *tempinput)
 
 		if(i==0 && infile)
 		{
-			// fprintf(stderr, "2. %s is being executed\n", tokenized_input_redirect[0]);
+			fprintf(stderr, "2. %s is being executed\n", tokenized_input_redirect[0]);
 			if(outfile && countsimple==1)
 				fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
 			else
@@ -219,6 +224,9 @@ void start_redirect_handler(char *tempinput)
 		}
 	}
 
+	close(fdout);
+	close(fdin);
+
 	dup2(tempin, 0);
 	dup2(tempout, 1);
 	
@@ -243,7 +251,7 @@ void start_command_chain(char *input)
 		fprintf(stderr, "%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
 		
 		start_redirect_handler(tokenized_input[i]);
-		free(tokenized_input[i]);
+		// free(tokenized_input[i]);
 	}
 
 	// free(tokenized_input);
@@ -283,7 +291,7 @@ int main(int argc, char const *argv[])
 		initialize_signal_handlers();
 		char prompt[1000];
 		sprintf(prompt, "\r\n%s@%s:%s$ ", username, hostname, home_based(pwd));
-		fprintf(stderr, "%s", prompt);
+		printf("%s", prompt);
 
 		if(!input_is_triggered())
 			continue;
