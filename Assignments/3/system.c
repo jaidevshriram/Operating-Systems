@@ -7,6 +7,7 @@
 #include<signal.h>
 #include "helper.h"
 #include "catchsig.h"
+#include "jobs.h"
 
 int launch_command_bg(char **tokenized_input, int bg_pos)
 {
@@ -34,7 +35,8 @@ int launch_command_bg(char **tokenized_input, int bg_pos)
     else
     {
         printf("\n[+] %d", pid);
-        add_pid_queue(pid);
+        // __pid_t exit_value = waitpid(pid_queue[i].pid, &status, WNOHANG);
+        add_pid_queue(pid, tokenized_input[0], 1);
     }
 
     return 0;
@@ -138,7 +140,8 @@ int bg(char **tokenized_input, int count)
 
     if(check_pid_exist(pid) == 1)
     {
-		kill(pid, SIGCONT);   
+		kill(pid, SIGCONT);
+        change_pid_status(pid, 1);  
     }
     else
         printf("\npid does not exist");

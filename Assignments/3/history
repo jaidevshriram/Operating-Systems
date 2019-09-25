@@ -1,20 +1,20 @@
-clear
-setenv 231 1241 1241
-setenv 132434t5yu6
-unsetenv 13242QT
-unsetenv DSGDSHSXF
-unsetenv MYVAR
-unsetenv MYVAR
-setenv MYVAR 20
-man setenv
-q
+cat out
 cat out.txt
- grep .c
-ls 
- grep .c
-ls 
- grep
-ls 
  wc -l
-ls 
- grep "main"
+ grep vim 
+jobs 
+ls
+ wc -l
+ grep vim 
+jobs 
+ wc -l
+ grep vim 
+jobs 
+ grep vim
+jobs 
+firefox &
+vim &
+ grep vim 
+jobs 
+ wc -l
+ grep vim 

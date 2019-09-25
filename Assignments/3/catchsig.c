@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "jobs.h"
 
 int shell_pid, ischild;
 
@@ -21,6 +22,7 @@ void catch_ctrl_z(int temp)
 	{
 		kill(ischild, SIGTSTP);
 		kill(ischild, SIGINT);
+		change_pid_status(ischild, 0);
 	}
 	fflush(stdout);
 	signal(SIGTSTP, catch_ctrl_z);

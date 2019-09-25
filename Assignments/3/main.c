@@ -15,6 +15,7 @@
 #include "history.h"
 #include "catchsig.h"
 #include "env.h"
+#include "jobs.h"
 
 extern char *username, hostname[100], pwd[1000];
 
@@ -38,7 +39,7 @@ char **tokenize_input(char *input, char *delimiters)
 
 	while(input_part)
 	{
-		tokenized_input[position++] = malloc(strlen(input_part));
+		tokenized_input[position++] = malloc(strlen(input_part)+1);
 		strcpy(tokenized_input[position-1], input_part);
 		input_part = strtok(NULL, delimiters);
 	}
@@ -63,8 +64,9 @@ int start_command_execution(char *input)
 	strcpy(command_list[7], "quit");
 	strcpy(command_list[8], "setenv");
 	strcpy(command_list[9], "unsetenv");
+	strcpy(command_list[10], "jobs");
 
-	int command_count = 10;
+	int command_count = 11;
 
 	int command_found = 0, i, err;
 
@@ -88,8 +90,9 @@ int start_command_execution(char *input)
 			case 5: err = history(tokenized_input, count_tokens(input)); break;
 			case 6: err = fg(tokenized_input, count_tokens(input)); break;
 			case 7: _exit(0); break;
-			case 8: set_env(tokenized_input, count_tokens(input)); break;
-			case 9: unset_env(tokenized_input, count_tokens(input)); break;
+			case 8: err = set_env(tokenized_input, count_tokens(input)); break;
+			case 9: err = unset_env(tokenized_input, count_tokens(input)); break;
+			case 10: err = jobs(); break;
 			default: err = launch_command(tokenized_input); break;
 		}
 	}
