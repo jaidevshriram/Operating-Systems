@@ -39,8 +39,9 @@ char **tokenize_input_echo(char *input)
 
 char *formattedecho(char *string);
 
-void echo(char *command)
+int echo(char *command)
 {
    	command = strtok(command, "\n");
     char **tokenized_input_echo = tokenize_input_echo(command);
+	return 0;
 }

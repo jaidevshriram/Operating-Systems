@@ -63,7 +63,7 @@ int launch_command(char **tokenized_input)
     }
 
     __pid_t pid, wpid;
-    int status;
+    int status, error = 0;
 
     pid = fork();
     if(pid == 0)
@@ -73,24 +73,28 @@ int launch_command(char **tokenized_input)
         {
             perror("Process couldn't be started");
             // printf("%s\n", tokenized_input[0]);
-            return -1;
+            exit(10);
         }
     }
     else if (pid < 0)
     {
         perror("Child process could not be created");
-        return 0;
+        error = -1;
     }
     else 
     {
         set_child_pid(pid);
         do
         {
-            wpid = waitpid(pid, &status, WUNTRACED);
+            wpid = waitpid(pid, &status, 0);
         } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+
+        if ( WIFEXITED(status) ) 
+            if(WEXITSTATUS(status)!=0)
+                error = -1; 
     }
 
-    return 0;
+    return error;
 }
 
 int fg(char **tokenized_input, int count)

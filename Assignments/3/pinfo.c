@@ -8,7 +8,7 @@
 
 #define PROP_SIZE 1000
 
-void pinfo(char **tokenized_input, int token_count)
+int pinfo(char **tokenized_input, int token_count)
 {
     pid_t pid = getpid();
 
@@ -16,7 +16,10 @@ void pinfo(char **tokenized_input, int token_count)
         pid = atoi(tokenized_input[1]);
 
     if(pid == 0)
+    {
         printf("\nInvalid PID");
+        return -1;
+    }
 
     char stat_file[100];
     sprintf(stat_file, "/proc/%d/stat", pid);
@@ -55,5 +58,8 @@ void pinfo(char **tokenized_input, int token_count)
     else
     {
         printf("\nError looking up PID %d", pid);
+        return -1;
     }
+
+    return 0;
 }

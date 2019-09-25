@@ -1,2 +1,2 @@
-void echo(char *command);
+int echo(char *command);
 char *formattedecho(char *string);

@@ -1,1 +1,1 @@
-void pinfo(char **tokenized_input, int token_count);
+int pinfo(char **tokenized_input, int token_count);

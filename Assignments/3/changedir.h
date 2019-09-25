@@ -1,1 +1,1 @@
-void cd(char **command);
+int cd(char **command);
