@@ -1,20 +1,20 @@
-cat out
-cat out.txt
  wc -l
- grep vim 
-jobs 
+cat 
+ wc
+ cat makefile 
+grep all makefile 
+ wc -l
+cat makefile 
+diff pwd.c pwd.h
+sort 
+sort 
+clear
+cd 3
+cd ..
+ls
+ls
 ls
  wc -l
- grep vim 
-jobs 
+sort 
  wc -l
- grep vim 
-jobs 
- grep vim
-jobs 
-firefox &
-vim &
- grep vim 
-jobs 
- wc -l
- grep vim 
+cat 

@@ -19,13 +19,15 @@
 
 extern char *username, hostname[100], pwd[1000];
 
-char **tokenize_input(char *input, char *delimiters)
+char **tokenize_input(char *input, char *tempdelimiters)
 {
 	while(iswhitespace(*input))
 		input++;
 
-	char str[1000];
+	char str[1000], delimiters[100];
+	
 	strcpy(str, input);
+	strcpy(delimiters, tempdelimiters);
 
 	trimTrailing(str);
 
@@ -43,6 +45,8 @@ char **tokenize_input(char *input, char *delimiters)
 		strcpy(tokenized_input[position-1], input_part);
 		input_part = strtok(NULL, delimiters);
 	}
+
+	tokenized_input[position] = NULL;
 
 	return tokenized_input;
 }
@@ -65,8 +69,9 @@ int start_command_execution(char *input)
 	strcpy(command_list[8], "setenv");
 	strcpy(command_list[9], "unsetenv");
 	strcpy(command_list[10], "jobs");
+	strcpy(command_list[11], "overkill");
 
-	int command_count = 11;
+	int command_count = 12;
 
 	int command_found = 0, i, err;
 
@@ -93,13 +98,14 @@ int start_command_execution(char *input)
 			case 8: err = set_env(tokenized_input, count_tokens(input)); break;
 			case 9: err = unset_env(tokenized_input, count_tokens(input)); break;
 			case 10: err = jobs(); break;
+			case 11: err = overkill(); break;
 			default: err = launch_command(tokenized_input); break;
 		}
 	}
 
 	add_history(input);
 	// free(tokenized_input);
-	// fprintf(stderr, "%s returned with code : %d\n", input, err);
+	fprintf(stderr, "%s returned with code : %d\n", input, err);
 	return err;
 }
 
@@ -174,6 +180,9 @@ void start_redirect_handler(char *tempinput)
 
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
+		char simplecommand[1000];
+		strcpy(simplecommand, tokenized_input[i]);
+		
 		int is_error = 0;
 		if(fdin == -1)
 		{
@@ -185,19 +194,7 @@ void start_redirect_handler(char *tempinput)
 		close(fdin);
 
 		if(i==0 && infile)
-		{
-			fprintf(stderr, "2. %s is being executed\n", tokenized_input_redirect[0]);
-			if(outfile && countsimple==1)
-				fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
-			else
-				fdout = dup(tempout);
-
-			dup2(fdout, 1);
-			close(fdout);
-
-			is_error = start_command_execution(tokenized_input_redirect[0]);
-			continue;
-		}
+			strcpy(simplecommand, tokenized_input_redirect[0]);
 
 		if(i == countsimple - 1)
 		{
@@ -218,11 +215,11 @@ void start_redirect_handler(char *tempinput)
 		close(fdout);
 
 		// fprintf(stderr, "%s is being executed\n", tokenized_input[i]);
-		is_error = start_command_execution(tokenized_input[i]);
+		is_error = start_command_execution(simplecommand);
 
 		if(is_error!=0)
 		{
-			// fprintf(stderr, "%s has failed in chain of redirects\n", tokenized_input[i]);
+			fprintf(stderr, "%s has failed in chain of redirects\n", tokenized_input[i]);
 			break;
 		}
 	}
@@ -244,6 +241,9 @@ void start_command_chain(char *input)
 	char **tokenized_input = tokenize_input(input, ";");
 
 	// for(int i=0; tokenized_input[i]!=NULL; i++)
+	// 	printf("%d\n", i);
+
+	// for(int i=0; tokenized_input[i]!=NULL; i++)
 	// 	printf("%d:%s\n", i, tokenized_input[i]);
 	
 	for (int i=0; tokenized_input[i]!=NULL; i++)
@@ -251,11 +251,13 @@ void start_command_chain(char *input)
 		fflush(stdin); 
 		fflush(stdout);
 
-		fprintf(stderr, "%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
+		// fprintf(stderr, "%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
 		
 		start_redirect_handler(tokenized_input[i]);
+		// printf("test 6");
 		// free(tokenized_input[i]);
 	}
+	// printf("test 7");
 
 	// free(tokenized_input);
 }
@@ -273,7 +275,7 @@ int input_is_triggered()
 
 	getline(&input, &size, stdin);
 
-	fprintf(stderr, "INPUT RECIEVED IS :%s", input);
+	// fprintf(stderr, "INPUT RECIEVED IS :%s", input);
 	start_command_chain(input);
 	free(input);
 	return 1;

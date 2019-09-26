@@ -170,4 +170,5 @@ int ls(char **tokenized_input, char *input)
     }
 
     free(dirname);
+    return 0;
 }

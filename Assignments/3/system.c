@@ -9,6 +9,8 @@
 #include "catchsig.h"
 #include "jobs.h"
 
+extern int shell_pid;
+
 int launch_command_bg(char **tokenized_input, int bg_pos)
 {
     __pid_t pid, wpid;
@@ -71,11 +73,12 @@ int launch_command(char **tokenized_input)
     if(pid == 0)
     {
         initialize_signal_handlers();
+        // setpgid(0,0);
         if(execvp(tokenized_input[0], tokenized_input) == -1)
         {
             perror("Process couldn't be started");
             // printf("%s\n", tokenized_input[0]);
-            exit(10);
+            exit(-1);
         }
     }
     else if (pid < 0)
@@ -86,6 +89,10 @@ int launch_command(char **tokenized_input)
     else 
     {
         set_child_pid(pid);
+        // __pid_t foreground_pid = tcgetpgrp(shell_pid);
+        // tcsetpgrp(foreground_pid, pid);
+        // fprintf(stderr, "%d is foreground ID\n", foreground_pid);
+
         do
         {
             wpid = waitpid(pid, &status, 0);

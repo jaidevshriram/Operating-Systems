@@ -22,8 +22,8 @@ void start_pid_queue()
 void add_pid_queue(int pid, char name[], int stat)
 {
     pid_queue[pid_queue_count].pid = pid;
-    strcpy(pid_queue[pid_queue_count++].name, name);
-    pid_queue[pid_queue_count].stat = stat;
+    strcpy(pid_queue[pid_queue_count].name, name);
+    pid_queue[pid_queue_count++].stat = stat;
 }
 
 void delete_pid_queue(int pid)
@@ -83,5 +83,14 @@ int jobs()
         printf("[%d] %s %s [%d]\n", i, pid_queue[i].stat == 0 ? "Stopped" : "Running", pid_queue[i].name, pid_queue[i].pid);
     }
 
+    return 0;
+}
+
+int overkill()
+{
+    for(int i=0; i<pid_queue_count; i++)
+        kill(pid_queue[i].pid, SIGKILL);
+    for(int i=0; i<pid_queue_count;)
+        delete_pid_queue(pid_queue[i].pid);
     return 0;
 }
