@@ -16,6 +16,7 @@
 #include "catchsig.h"
 #include "env.h"
 #include "jobs.h"
+#include "cron.h"
 
 extern char *username, hostname[100], pwd[1000];
 
@@ -70,8 +71,9 @@ int start_command_execution(char *input)
 	strcpy(command_list[9], "unsetenv");
 	strcpy(command_list[10], "jobs");
 	strcpy(command_list[11], "overkill");
+	strcpy(command_list[12], "cronjob");
 
-	int command_count = 12;
+	int command_count = 13;
 
 	int command_found = 0, i, err;
 
@@ -99,13 +101,14 @@ int start_command_execution(char *input)
 			case 9: err = unset_env(tokenized_input, count_tokens(input)); break;
 			case 10: err = jobs(); break;
 			case 11: err = overkill(); break;
+			case 12: err = cronjob(tokenized_input, count_tokens(input)); break;
 			default: err = launch_command(tokenized_input); break;
 		}
 	}
 
 	add_history(input);
 	// free(tokenized_input);
-	fprintf(stderr, "%s returned with code : %d\n", input, err);
+	// fprintf(stderr, "%s returned with code : %d\n", input, err);
 	return err;
 }
 
@@ -175,8 +178,8 @@ void start_redirect_handler(char *tempinput)
 
 	int ret, fdout = dup(tempout), countsimple = 0;
 
-	for(countsimple = 0; tokenized_input[countsimple]!=NULL; countsimple++)
-		printf("%d from %s: %s\n", countsimple, input, tokenized_input[countsimple]);
+	for(countsimple = 0; tokenized_input[countsimple]!=NULL; countsimple++);
+		// printf("%d from %s: %s\n", countsimple, input, tokenized_input[countsimple]);
 
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
@@ -254,6 +257,7 @@ void start_command_chain(char *input)
 		// fprintf(stderr, "%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
 		
 		start_redirect_handler(tokenized_input[i]);
+		update();
 		// printf("test 6");
 		// free(tokenized_input[i]);
 	}
