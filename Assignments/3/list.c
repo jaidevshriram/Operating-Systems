@@ -34,7 +34,7 @@ void permission_printer(struct stat statbuf, char output[])
 int ls(char **tokenized_input, char *input)
 {
     int def = 1, hidden = 0, longv = 0, dir = 0, exit = 0;
-    char dirname[100];
+    char *dirname = malloc(1000);
 
     switch(count_tokens(input))
     {
@@ -95,6 +95,8 @@ int ls(char **tokenized_input, char *input)
         }
     }
 
+    dirname = translate_home(dirname);
+
     if(exit)
     {
         printf("Incorrect input format for ls. Please check flags\n");
@@ -102,27 +104,35 @@ int ls(char **tokenized_input, char *input)
     }
 
     if(dir == 0)
-        strcpy(dirname, ".");
+        strcpy(dirname, "./");
 
     struct stat statbuf;
     if(stat(dirname, &statbuf)!=0)
     {
         printf("File/Directory %s does not exist.\n", dirname);
+        free(dirname);
         return -1;
     }
 
     if(S_ISDIR(statbuf.st_mode))
     {
+        strcat(dirname, "/");
+
         DIR *directory_pointer = opendir(dirname);
         struct dirent *entry = readdir(directory_pointer);
         while(entry)
         {
             int display = 0;
 
+            char updated_file_path[1000];
+            strcpy(updated_file_path, dirname);
+
+            strcat(updated_file_path, entry->d_name);
+
             struct stat filestat;
-            if(stat(entry->d_name, &filestat)!=0)
+            if(stat(updated_file_path, &filestat)!=0)
             {
-                printf("Unable to acces file %s\n", entry->d_name);
+                printf("Unable to acces file %s\n", updated_file_path);
                 entry = readdir(directory_pointer);
                 continue;
             }
@@ -158,4 +168,7 @@ int ls(char **tokenized_input, char *input)
     {
         printf("%s\n", dirname);
     }
+
+    free(dirname);
+    return 0;
 }

@@ -2,10 +2,12 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
+#include<sys/wait.h>
+#include "jobs.h"
 
 #define STDIN 0
 
-char *username, hostname[100], pwd[1000];
+char *username, hostname[100], pwd[1000], initial_pwd[1000];
 
 void updatepwd()
 {
@@ -16,28 +18,64 @@ void initialize()
 {
 	username = getenv("USER");
 	gethostname(hostname, 100);
+    getcwd(initial_pwd, 100);
 	updatepwd();
+    start_pid_queue();
+}
+
+void update()
+{
+	username = getenv("USER");
+	gethostname(hostname, 100);
+	updatepwd();
+    check_pid_status();
 }
 
 char *translate_home(char *path)
 {
+    char *newpath = malloc(1000);
+    strcpy(newpath, path);
+
     if(path[0]=='~' && strlen(path)!=1)
     {
         path++;
         updatepwd();
-        char newpath[1000] = "/home/";
-        strcat(newpath, getenv("USER"));
+        strcpy(newpath, initial_pwd);
         strcat(newpath, path);
-        path = newpath;
     }
     else if(path[0]=='~')
     {
-        char newpath[1000] = "/home/";
-        strcat(newpath, getenv("USER"));
-        path = newpath;
+        strcpy(newpath, initial_pwd);
     }
 
-    return path;
+    return newpath;
+}
+
+char *home_based(char *path)
+{
+    char *newpath = malloc(1000);
+    if(strlen(path) >= strlen(initial_pwd))
+    {
+        if(strncmp(path, initial_pwd, strlen(initial_pwd)) == 0)
+        {
+            char *temp = malloc(1000);
+
+            int j = 0;
+            for(int i=strlen(initial_pwd); path[i]; i++)
+                temp[j++] = path[i];
+            temp[j]='\0';         
+            
+            strcpy(newpath, "~");
+            strcat(newpath, temp);
+
+            free(temp);
+            return newpath;
+        }
+        else
+            return path;
+    }
+    // else
+        return path;
 }
 
 int iswhitespace(char c)
@@ -114,8 +152,6 @@ int count_tokens(char *input)
 
 	trimTrailing(str);
 
-	char **tokenized_input = (char **) malloc(1000);
-
 	char *input_part;
 
 	int position = 0;
@@ -124,11 +160,17 @@ int count_tokens(char *input)
 
 	while(input_part)
 	{
-		tokenized_input[position++] = malloc(strlen(input_part));
         tokens++;
-		strcpy(tokenized_input[position-1], input_part);
 		input_part = strtok(NULL, " ");
 	}
 
 	return tokens;
+}
+
+void removewhitespace(char *old, char *new)
+{
+    while(iswhitespace(*old))
+		old++;
+	strcpy(new, old);
+	trimTrailing(new);
 }

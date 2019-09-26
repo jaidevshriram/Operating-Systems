@@ -1,3 +1,6 @@
+cd 2
+cd ../
+ls
 echo hello there friend
 echo hello there
 echo hello
@@ -15,6 +18,3 @@ pinfo
 pinfo
 ls -l test/
 ls
-ls test
-cd ../
-cd test

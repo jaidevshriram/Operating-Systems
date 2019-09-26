@@ -1,0 +1,20 @@
+clear
+cd ../../
+ls ~
+cd ~
+ls ~
+cd ../
+ls ~
+ls ~
+cd ~
+cd ../
+cd ~
+code .
+man 2 open
+rm sample
+ls
+ls
+clear
+clear
+cat sample
+cat smaple

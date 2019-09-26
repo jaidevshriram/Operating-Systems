@@ -1,1 +1,1 @@
-void print_pwd();
+int print_pwd();

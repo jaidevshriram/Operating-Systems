@@ -4,9 +4,16 @@
 #include<unistd.h>
 #include "helper.h"
 
-void cd(char **command)
+int cd(char **command)
 {
 	command[1] = strtok(command[1], "\n");
 	char *newpath = translate_home(command[1]);
-	chdir(newpath);
+	if(chdir(newpath)==-1)
+	{
+		perror("Shell");
+		free(newpath);
+		return -1;
+	}
+	free(newpath);
+	return 0;
 }

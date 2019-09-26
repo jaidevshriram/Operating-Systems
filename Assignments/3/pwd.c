@@ -6,7 +6,8 @@
 
 extern char pwd[100];
 
-void print_pwd()
+int print_pwd()
 {
     printf("%s\n", pwd);
+    return 0;
 }
