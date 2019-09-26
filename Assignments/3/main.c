@@ -108,7 +108,7 @@ int start_command_execution(char *input)
 
 	add_history(input);
 	// free(tokenized_input);
-	fprintf(stderr, "%s returned with code : %d\n", input, err);
+	// fprintf(stderr, "%s returned with code : %d\n", input, err);
 	return err;
 }
 
@@ -178,8 +178,8 @@ void start_redirect_handler(char *tempinput)
 
 	int ret, fdout = dup(tempout), countsimple = 0;
 
-	for(countsimple = 0; tokenized_input[countsimple]!=NULL; countsimple++)
-		printf("%d from %s: %s\n", countsimple, input, tokenized_input[countsimple]);
+	for(countsimple = 0; tokenized_input[countsimple]!=NULL; countsimple++);
+		// printf("%d from %s: %s\n", countsimple, input, tokenized_input[countsimple]);
 
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
@@ -257,6 +257,7 @@ void start_command_chain(char *input)
 		// fprintf(stderr, "%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
 		
 		start_redirect_handler(tokenized_input[i]);
+		update();
 		// printf("test 6");
 		// free(tokenized_input[i]);
 	}
