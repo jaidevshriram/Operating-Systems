@@ -1,20 +1,20 @@
- wc -l
-cat 
- wc
- cat makefile 
-grep all makefile 
- wc -l
-cat makefile 
-diff pwd.c pwd.h
-sort 
-sort 
+ls
 clear
 cd 3
+ls
+ls
+ls
+ls
+ls
+ls
+ls
+ls
+ls
+ls
 cd ..
 ls
+cronjob -c ls -t 3 -p 6
 ls
+cronjob -c ls -t 3 -p 6
+cronjob -c ls -t 3 -p 6
 ls
- wc -l
-sort 
- wc -l
-cat 
