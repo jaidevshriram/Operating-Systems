@@ -1,20 +1,20 @@
+cronjob -c ls -t 3 -p 6
+  ls
+  ls
+cronjob -c ls -t 3 -p 6
+  ls
+  ls
+cronjob -c ls -t 3 -p 6
+cronjob -c ls -t 3 -p 6
+cronjob -c ls -t 3 -p 6
+cronjob -c ls -t 3 -p 6
+cronjob -c ls -t 3 -p 6
+cronjob -c ls -t 3 -p 6
 [A[A
-[A[A
-[A[A
-[A[A
-[A[A
-[A[A
-[A[A
-[A[A
-[A[A
-[A[A
-[A[A
-[A[A
-[A[A[A
-[A[A
+clear
 ls
-ls
-[A[A[A
-ps
-jobs
-overkill
+[A[A
+cronjob -c ls -t 3 -p 6
+cronjob -c ls -t 3 -p 6
+cronjob -c ls -t 3 -p 6
+cronjob -c ls -t 3 -p 6

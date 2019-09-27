@@ -88,6 +88,7 @@ int start_command_execution(char *input)
 
 	if(command_found == 0)
 	{
+		// printf("%d is compare\n", countfreq("\033", input));
 		err = launch_command(tokenized_input);		
 	}
 	else
