@@ -1,20 +1,20 @@
-x‹œ ˆ
-øœ ˆ
+fg 1
 jobs
-clear
-fg 13220
+ls
+ls
+./a.out &
+./a.out
+ls
 jobs
 ps
-clear
 ls
+fg 1
+fg 1
+bg 1
 ls
-ls
-ls
-ls
-clear
-top
-man proc
+bg 1
 jobs
-firefox &
-vim &
-jobs
+ljobs
+./a.out &
+./a.out
+./a.out

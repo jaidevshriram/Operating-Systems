@@ -117,9 +117,8 @@ int jobs()
         }
         else
         {
-            printf("\nError looking up PID %d", pid);
-            fclose(fd);
-            return -1;
+            delete_pid_queue(pid);
+            i--;
         }
 
         fclose(fd);
@@ -132,9 +131,36 @@ int overkill()
 {
     for(int i=0; i<pid_queue_count; i++)
         kill(pid_queue[i].pid, SIGKILL);
-    for(int i=0; i<pid_queue_count;i++)
-        delete_pid_queue(pid_queue[i].pid);
+    start_pid_queue();
     return 0;
+}
+
+int kjobs(char **tokenized_input, int count)
+{
+    if(count!=3)
+    {
+        printf("Usage: kjobs <jobno> <signo>\n");
+        return -1;
+    }
+
+    int pid_no = atoi(tokenized_input[1]);
+    int signo = atoi(tokenized_input[2]);
+
+    if(pid_no < 0 || signo < 0)
+    {
+        printf("Inavlid Usage of kjobs\n");
+        return -1;
+    }
+
+    if(pid_no<=0 || pid_no>pid_queue_count)
+    {
+        printf("Job doesn't exist\n");
+        return -1;
+    }
+
+    int pid = pid_queue[pid_no-1].pid;
+
+    kill(pid, signo);
 }
 
 int fg(char **tokenized_input, int count)

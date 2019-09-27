@@ -72,8 +72,10 @@ int start_command_execution(char *input)
 	strcpy(command_list[10], "jobs");
 	strcpy(command_list[11], "overkill");
 	strcpy(command_list[12], "cronjob");
+	strcpy(command_list[13], "kjob");
+	strcpy(command_list[14], "bg");
 
-	int command_count = 13;
+	int command_count = 15;
 
 	int command_found = 0, i, err;
 
@@ -102,6 +104,8 @@ int start_command_execution(char *input)
 			case 10: err = jobs(); break;
 			case 11: err = overkill(); break;
 			case 12: err = cronjob(tokenized_input, count_tokens(input)); break;
+			case 13: err = kjobs(tokenized_input, count_tokens(input)); break;
+			case 14: err = bg(tokenized_input, count_tokens(input)); break;
 			default: err = launch_command(tokenized_input); break;
 		}
 	}
