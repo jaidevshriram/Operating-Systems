@@ -1,20 +1,20 @@
-clear
-cd 3
-cd ..
-clear
-cd 3
-clear
-cd ..
+[A[A
+[A[A
+[A[A
+[A[A
+[A[A
+[A[A
+[A[A
+[A[A
+[A[A
+[A[A
+[A[A
+[A[A
+[A[A[A
+[A[A
 ls
-cat out.txt
-cat makefile
-cat out.txt
-cat makefile
-cat makefile
-cat makefile
-kjob 1 9
+ls
+[A[A[A
+ps
 jobs
-gedit &
-quir
-jobs
-kill 2 9
+overkill

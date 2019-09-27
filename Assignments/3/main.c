@@ -87,7 +87,9 @@ int start_command_execution(char *input)
 	}
 
 	if(command_found == 0)
-		err = launch_command(tokenized_input);
+	{
+		err = launch_command(tokenized_input);		
+	}
 	else
 	{
 		switch((i-1))

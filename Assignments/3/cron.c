@@ -6,7 +6,7 @@
 
 int cronjob(char **tokenized_input, int count)
 {
-    if(count!=7)
+    if(count<=7)
     {
         printf("Incorrect Number of arguments. Usage: cronjob -c <command> -t <period> -p <duration>\n");
         return -1;
