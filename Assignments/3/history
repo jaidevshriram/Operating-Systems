@@ -1,20 +1,20 @@
+xãú†à
+¯êú†à
+jobs
+clear
+fg 13220
+jobs
+ps
+clear
+ls
+ls
+ls
+ls
 ls
 clear
-cd 3
-ls
-ls
-ls
-ls
-ls
-ls
-ls
-ls
-ls
-ls
-cd ..
-ls
-cronjob -c ls -t 3 -p 6
-ls
-cronjob -c ls -t 3 -p 6
-cronjob -c ls -t 3 -p 6
-ls
+top
+man proc
+jobs
+firefox &
+vim &
+jobs

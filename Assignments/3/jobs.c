@@ -48,12 +48,12 @@ void check_pid_status()
         if(exit_value == pid_queue[i].pid)
         {
             printf("[%d] exited normally\n", pid_queue[i].pid);
-            delete_pid_queue(pid_queue[i].pid);
+            delete_pid_queue(pid_queue[i--].pid);
         }
         else if(exit_value!=0)
         {
             printf("[%d] exited with errors.\n", pid_queue[i].pid);
-            delete_pid_queue(pid_queue[i].pid);
+            delete_pid_queue(pid_queue[i--].pid);
         }
     }
 }
@@ -80,7 +80,49 @@ int jobs()
 {
     for(int i=0; i<pid_queue_count; i++)
     {
-        printf("[%d] %s %s [%d]\n", i, pid_queue[i].stat == 0 ? "Stopped" : "Running", pid_queue[i].name, pid_queue[i].pid);
+        int pid = pid_queue[i].pid;
+
+        char stat_file[100];
+        sprintf(stat_file, "/proc/%d/stat", pid);
+
+        FILE *fd = fopen(stat_file, "r");
+
+        if(fd != NULL)
+        {
+            char p_prop[1000];
+            sprintf(p_prop, "%d", pid);
+
+            for(int j=0; fscanf(fd, "%s", p_prop) == 1 ; j++)
+            {
+                if(j == 2)
+                {
+                    char pid_stat[1000];
+
+                    if(strcmp(p_prop, "S")==0 || strcmp(p_prop, "T")==0)
+                        strcpy(pid_stat, "Stopped");
+                    else if(strcmp(p_prop, "R")==0)
+                        strcpy(pid_stat, "Running");
+                    else
+                    {
+                        printf("%d: %s with %s is being deleted\n", pid, p_prop, pid_queue[i].name);
+                        delete_pid_queue(pid);
+                        i--;
+                        continue;
+                    }
+
+                    printf("[%d] %s %s [%d]\n", i+1, pid_stat, pid_queue[i].name, pid_queue[i].pid);
+                    break;
+                }
+            }  
+        }
+        else
+        {
+            printf("\nError looking up PID %d", pid);
+            fclose(fd);
+            return -1;
+        }
+
+        fclose(fd);
     }
 
     return 0;
@@ -90,7 +132,108 @@ int overkill()
 {
     for(int i=0; i<pid_queue_count; i++)
         kill(pid_queue[i].pid, SIGKILL);
-    for(int i=0; i<pid_queue_count;)
+    for(int i=0; i<pid_queue_count;i++)
         delete_pid_queue(pid_queue[i].pid);
     return 0;
+}
+
+int fg(char **tokenized_input, int count)
+{
+    int error = 0;
+
+    if(count<2)
+    {
+        printf("Shell: Too few arguments\nUsage: fg <jobno>\n");
+        return -1;
+    }
+
+    int pid_no = atoi(tokenized_input[1]);
+
+    if(pid_no<=0 || pid_no>pid_queue_count)
+    {
+        printf("Job doesn't exist\n");
+        return -1;
+    }
+
+    int pid = pid_queue[pid_no-1].pid;
+
+    if(pid == 0)
+    {
+        printf("\n Usage: fg <jobno>");
+        return -1;
+    }
+
+    if(check_pid_exist(pid) == 1)
+    {
+        delete_pid_queue(pid);
+        int status;
+
+        signal(SIGTTIN, SIG_IGN);
+        signal(SIGTTOU, SIG_IGN);
+        
+        tcsetpgrp(STDIN_FILENO, pid);
+        kill(pid, SIGCONT);
+
+        waitpid(pid, &status, WUNTRACED);
+
+        if(WIFEXITED(status)==0)
+            error = -1;
+
+        if(WIFSTOPPED(status)!=0)
+        {
+            add_pid_queue(pid, tokenized_input[0], 0);
+            printf("[%d] Stopped\n", pid);
+            error = -1;
+        }
+         
+        tcsetpgrp(STDIN_FILENO, getpgrp());
+
+        signal(SIGTTIN, SIG_DFL);
+        signal(SIGTTOU, SIG_DFL);
+    }
+    else
+    {
+        printf("\npid does not exist");
+        return -1;
+    }
+
+    return error;
+}
+
+int bg(char **tokenized_input, int count)
+{
+    if(count<2)
+    {
+        printf("Shell: Too few arguments\nUsage: bg <jobno>\n");
+        return -1;
+    }
+    
+    int pid_no = atoi(tokenized_input[1]);
+
+    if(pid_no<=0 || pid_no>pid_queue_count)
+    {
+        printf("Job doesn't exist\n");
+        return -1;
+    }
+
+    int pid = pid_queue[pid_no-1].pid;
+
+    if(pid == 0)
+    {
+        printf("\n Usage: bg <jobno>");
+        return -1;
+    }
+
+    if(check_pid_exist(pid) == 1)
+    {
+		kill(pid, SIGCONT);
+        change_pid_status(pid, 1);  
+    }
+    else
+    {
+        printf("\npid does not exist");
+        return -1;
+    }
+
+    return 0;    
 }

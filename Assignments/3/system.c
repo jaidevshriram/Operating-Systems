@@ -73,7 +73,7 @@ int launch_command(char **tokenized_input)
     if(pid == 0)
     {
         initialize_signal_handlers();
-        // setpgid(0,0);
+        setpgid(0,0);
         if(execvp(tokenized_input[0], tokenized_input) == -1)
         {
             perror("Process couldn't be started");
@@ -89,68 +89,29 @@ int launch_command(char **tokenized_input)
     else 
     {
         set_child_pid(pid);
-        // __pid_t foreground_pid = tcgetpgrp(shell_pid);
-        // tcsetpgrp(foreground_pid, pid);
-        // fprintf(stderr, "%d is foreground ID\n", foreground_pid);
 
-        do
+        signal(SIGTTIN, SIG_IGN);
+        signal(SIGTTOU, SIG_IGN);
+        
+        tcsetpgrp(STDIN_FILENO, pid);
+
+        waitpid(pid, &status, WUNTRACED);
+
+        if(WIFEXITED(status)==0)
+            error = -1;
+
+        if(WIFSTOPPED(status)!=0)
         {
-            wpid = waitpid(pid, &status, 0);
-        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+            add_pid_queue(pid, tokenized_input[0], 0);
+            printf("[%d] Stopped\n", pid);
+            error = -1;
+        }
+         
+        tcsetpgrp(STDIN_FILENO, getpgrp());
 
-        if ( WIFEXITED(status) ) 
-            if(WEXITSTATUS(status)!=0)
-                error = -1; 
+        signal(SIGTTIN, SIG_DFL);
+        signal(SIGTTOU, SIG_DFL);
     }
 
     return error;
-}
-
-int fg(char **tokenized_input, int count)
-{
-    if(count<2)
-    {
-        printf("Shell: Too few arguments\nUsage: fg <pid>\n");
-        return -1;
-    }
-
-    int pid = atoi(tokenized_input[1]);
-    if(pid == 0)
-    {
-        printf("\n Usage: fg <pid>");
-    }
-
-    if(check_pid_exist(pid) == 1)
-    {
-        kill(pid, SIGCONT);
-        delete_pid_queue(pid);
-        int status;
-		waitpid(-1,&status,WUNTRACED);
-    }
-    else
-        printf("\npid does not exist");
-}
-
-int bg(char **tokenized_input, int count)
-{
-    if(count<2)
-    {
-        printf("Shell: Too few arguments\nUsage: fg <pid>\n");
-        return -1;
-    }
-
-    int pid = atoi(tokenized_input[1]);
-    if(pid == 0)
-    {
-        printf("\n Usage: fg <pid>");
-    }
-
-    if(check_pid_exist(pid) == 1)
-    {
-		kill(pid, SIGCONT);
-        change_pid_status(pid, 1);  
-    }
-    else
-        printf("\npid does not exist");
-    
 }
