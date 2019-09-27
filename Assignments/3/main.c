@@ -124,6 +124,7 @@ void start_redirect_handler(char *tempinput)
 	char **tokenized_input_redirect = tokenize_input(input, "<");
 	
 	char **tokenized_output_redirect;
+	int isappend = 0;
 	char **tokenized_input;
 
 	int infile = 0;
@@ -160,6 +161,10 @@ void start_redirect_handler(char *tempinput)
 		outfile = 0;
 	else
 	{
+		if(strstr(input, ">>") != NULL) {
+			isappend = 1;
+		}
+
 		outfile = 1;
 		char *temp = malloc(1000);
 		strcpy(temp, tokenized_output_redirect[1]);
@@ -206,7 +211,12 @@ void start_redirect_handler(char *tempinput)
 		if(i == countsimple - 1)
 		{
 			if(outfile)
-				fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
+			{
+				if(isappend)
+					fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
+				else
+					fdout = open(outfile_name, O_CREAT | O_WRONLY, 0644);
+			}
 			else
 				fdout = dup(tempout);
 		}
