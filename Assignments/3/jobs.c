@@ -98,9 +98,9 @@ int jobs()
                 {
                     char pid_stat[1000];
 
-                    if(strcmp(p_prop, "S")==0 || strcmp(p_prop, "T")==0)
+                    if(strcmp(p_prop, "t")==0 || strcmp(p_prop, "T")==0 || strcmp(p_prop, "Z")==0)
                         strcpy(pid_stat, "Stopped");
-                    else if(strcmp(p_prop, "R")==0)
+                    else if(strcmp(p_prop, "R")==0 || strcmp(p_prop, "S")==0)
                         strcpy(pid_stat, "Running");
                     else
                     {

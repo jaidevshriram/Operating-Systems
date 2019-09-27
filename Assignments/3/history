@@ -1,20 +1,20 @@
+clear
+ls
+htop
+fg 1
 jobs
-overkill
+htop
+fg 1
 jobs
-gedit &
-overkill
-bg 1
+vim &
+fg 1
 jobs
-cat sortedlines.txt
-sort 
-cat sortedlines.txt
-sort 
-sort 
-bg 1
+htop
+kjob 1 9
 jobs
-gedit
-jobs
-jobs
+kill 1 9
 jobs
 clear
-gedit
+ps
+jobs
+ps
