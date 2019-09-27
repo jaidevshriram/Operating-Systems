@@ -17,6 +17,7 @@
 #include "env.h"
 #include "jobs.h"
 #include "cron.h"
+#include "colours.c"
 
 extern char *username, hostname[100], pwd[1000];
 
@@ -236,7 +237,7 @@ void start_redirect_handler(char *tempinput)
 
 		if(is_error!=0)
 		{
-			fprintf(stderr, "%s has failed in chain of redirects\n", tokenized_input[i]);
+			// fprintf(stderr, "%s has failed in chain of redirects\n", tokenized_input[i]);
 			break;
 		}
 	}
@@ -256,28 +257,15 @@ void start_redirect_handler(char *tempinput)
 void start_command_chain(char *input)
 {
 	char **tokenized_input = tokenize_input(input, ";");
-
-	// for(int i=0; tokenized_input[i]!=NULL; i++)
-	// 	printf("%d\n", i);
-
-	// for(int i=0; tokenized_input[i]!=NULL; i++)
-	// 	printf("%d:%s\n", i, tokenized_input[i]);
 	
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
 		fflush(stdin); 
 		fflush(stdout);
 
-		// fprintf(stderr, "%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
-		
 		start_redirect_handler(tokenized_input[i]);
 		update();
-		// printf("test 6");
-		// free(tokenized_input[i]);
 	}
-	// printf("test 7");
-
-	// free(tokenized_input);
 }
 
 int input_is_triggered()
@@ -293,7 +281,6 @@ int input_is_triggered()
 
 	getline(&input, &size, stdin);
 
-	// fprintf(stderr, "INPUT RECIEVED IS :%s", input);
 	start_command_chain(input);
 	free(input);
 	return 1;
@@ -313,8 +300,19 @@ int main(int argc, char const *argv[])
 		set_child_pid(0);
 		initialize_signal_handlers();
 		char prompt[1000];
-		sprintf(prompt, "\r\n%s@%s:%s$ ", username, hostname, home_based(pwd));
+		sprintf(prompt, "\r\n%s@%s", username, hostname);
+
+		green();
 		printf("%s", prompt);
+
+		reset();
+		printf(":");
+
+		cyan();
+		printf("%s", home_based(pwd));
+
+		reset();
+		printf("$ ");
 
 		if(!input_is_triggered())
 			continue;

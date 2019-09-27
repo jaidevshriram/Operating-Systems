@@ -1,3 +1,11 @@
+clear
+cd 3
+cd ..
+clear
+cd 3
+clear
+cd ..
+ls
 cat out.txt
 cat makefile
 cat out.txt
@@ -10,11 +18,3 @@ gedit &
 quir
 jobs
 kill 2 9
-jobs
-gedit &
-jobs
-kill 1 11
-jobs
-kill 1 12
-jobs
-kill 1 9
