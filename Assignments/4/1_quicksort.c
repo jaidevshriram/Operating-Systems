@@ -12,6 +12,8 @@ struct args {
     int l, r, *arr;
 };
 
+int n;
+
 int getrandom(int range)
 {
     srand(time(0));
@@ -183,18 +185,18 @@ void *threaded_quicksort(void *temp_args)
 
 void start_process_quicksort(int a[], int n)
 {
-   int *arr = sharemem(10*4);
-   for(int i=0; i<10; i++)
+   int *arr = sharemem(n*4);
+   for(int i=0; i<n; i++)
         arr[i] = a[i];
     process_quicksort(arr, 0, n-1);
-    for(int i=0; i<10; i++)
-        printf("%d ", arr[i]);
+    // for(int i=0; i<n i++)
+    //     printf("%d ", arr[i]);
 }
 
 void start_threaded_quicksort(int a[], int n)
 {
     int *arr = sharemem(10*4);
-    for(int i=0; i<10; i++)
+    for(int i=0; i<n; i++)
         arr[i] = a[i];
 
     pthread_t thread_id;
@@ -202,14 +204,17 @@ void start_threaded_quicksort(int a[], int n)
     pthread_create(&thread_id, NULL, threaded_quicksort, &arguments);
     pthread_join(thread_id, NULL);
 
-    for(int i=0; i<10; i++)
-        printf("%d ", arr[i]);
+    // for(int i=0; i<n; i++)
+    //     printf("%d ", arr[i]);
 }
 
 void main()
 {
-    int arr[10]; 
-    for(int i=0; i<10; i++)
+    scanf("%d", &n);
+
+    int arr[1000]; 
+
+    for(int i=0; i<n; i++)
         arr[i] = 10-i;
 
     clock_t time_normal;
