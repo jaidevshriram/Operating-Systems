@@ -17,6 +17,7 @@
 #include "env.h"
 #include "jobs.h"
 #include "cron.h"
+#include "colours.c"
 
 extern char *username, hostname[100], pwd[1000];
 
@@ -72,8 +73,10 @@ int start_command_execution(char *input)
 	strcpy(command_list[10], "jobs");
 	strcpy(command_list[11], "overkill");
 	strcpy(command_list[12], "cronjob");
+	strcpy(command_list[13], "kjob");
+	strcpy(command_list[14], "bg");
 
-	int command_count = 13;
+	int command_count = 15;
 
 	int command_found = 0, i, err;
 
@@ -84,7 +87,10 @@ int start_command_execution(char *input)
 	}
 
 	if(command_found == 0)
-		err = launch_command(tokenized_input);
+	{
+		// printf("%d is compare\n", countfreq("\033", input));
+		err = launch_command(tokenized_input);		
+	}
 	else
 	{
 		switch((i-1))
@@ -102,6 +108,8 @@ int start_command_execution(char *input)
 			case 10: err = jobs(); break;
 			case 11: err = overkill(); break;
 			case 12: err = cronjob(tokenized_input, count_tokens(input)); break;
+			case 13: err = kjobs(tokenized_input, count_tokens(input)); break;
+			case 14: err = bg(tokenized_input, count_tokens(input)); break;
 			default: err = launch_command(tokenized_input); break;
 		}
 	}
@@ -120,6 +128,7 @@ void start_redirect_handler(char *tempinput)
 	char **tokenized_input_redirect = tokenize_input(input, "<");
 	
 	char **tokenized_output_redirect;
+	int isappend = 0;
 	char **tokenized_input;
 
 	int infile = 0;
@@ -156,6 +165,10 @@ void start_redirect_handler(char *tempinput)
 		outfile = 0;
 	else
 	{
+		if(strstr(input, ">>") != NULL) {
+			isappend = 1;
+		}
+
 		outfile = 1;
 		char *temp = malloc(1000);
 		strcpy(temp, tokenized_output_redirect[1]);
@@ -202,7 +215,12 @@ void start_redirect_handler(char *tempinput)
 		if(i == countsimple - 1)
 		{
 			if(outfile)
-				fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
+			{
+				if(isappend)
+					fdout = open(outfile_name, O_CREAT | O_WRONLY | O_APPEND, 0644);
+				else
+					fdout = open(outfile_name, O_CREAT | O_WRONLY, 0644);
+			}
 			else
 				fdout = dup(tempout);
 		}
@@ -222,7 +240,7 @@ void start_redirect_handler(char *tempinput)
 
 		if(is_error!=0)
 		{
-			fprintf(stderr, "%s has failed in chain of redirects\n", tokenized_input[i]);
+			// fprintf(stderr, "%s has failed in chain of redirects\n", tokenized_input[i]);
 			break;
 		}
 	}
@@ -242,28 +260,15 @@ void start_redirect_handler(char *tempinput)
 void start_command_chain(char *input)
 {
 	char **tokenized_input = tokenize_input(input, ";");
-
-	// for(int i=0; tokenized_input[i]!=NULL; i++)
-	// 	printf("%d\n", i);
-
-	// for(int i=0; tokenized_input[i]!=NULL; i++)
-	// 	printf("%d:%s\n", i, tokenized_input[i]);
 	
 	for (int i=0; tokenized_input[i]!=NULL; i++)
 	{
 		fflush(stdin); 
 		fflush(stdout);
 
-		// fprintf(stderr, "%s of %d SENT TO REDIRECT HANDLER\n", tokenized_input[i], i);
-		
 		start_redirect_handler(tokenized_input[i]);
 		update();
-		// printf("test 6");
-		// free(tokenized_input[i]);
 	}
-	// printf("test 7");
-
-	// free(tokenized_input);
 }
 
 int input_is_triggered()
@@ -279,7 +284,6 @@ int input_is_triggered()
 
 	getline(&input, &size, stdin);
 
-	// fprintf(stderr, "INPUT RECIEVED IS :%s", input);
 	start_command_chain(input);
 	free(input);
 	return 1;
@@ -299,8 +303,19 @@ int main(int argc, char const *argv[])
 		set_child_pid(0);
 		initialize_signal_handlers();
 		char prompt[1000];
-		sprintf(prompt, "\r\n%s@%s:%s$ ", username, hostname, home_based(pwd));
+		sprintf(prompt, "\r\n%s@%s", username, hostname);
+
+		green();
 		printf("%s", prompt);
+
+		reset();
+		printf(":");
+
+		cyan();
+		printf("%s", home_based(pwd));
+
+		reset();
+		printf("$ ");
 
 		if(!input_is_triggered())
 			continue;

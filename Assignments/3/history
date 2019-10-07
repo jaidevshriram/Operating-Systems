@@ -1,20 +1,20 @@
-ls
 clear
-cd 3
 ls
-ls
-ls
-ls
-ls
-ls
-ls
-ls
-ls
-ls
-cd ..
-ls
-cronjob -c ls -t 3 -p 6
-ls
-cronjob -c ls -t 3 -p 6
-cronjob -c ls -t 3 -p 6
-ls
+htop
+fg 1
+jobs
+htop
+fg 1
+jobs
+vim &
+fg 1
+jobs
+htop
+kjob 1 9
+jobs
+kill 1 9
+jobs
+clear
+ps
+jobs
+ps

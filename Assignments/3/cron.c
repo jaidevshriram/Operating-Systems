@@ -6,76 +6,74 @@
 
 int cronjob(char **tokenized_input, int count)
 {
-    if(count!=7)
+    if(count<7)
     {
         printf("Incorrect Number of arguments. Usage: cronjob -c <command> -t <period> -p <duration>\n");
         return -1;
     }
 
     int exit = 0, t=-1, p=-1;
-    char name[200]="err";
+    char name[200]=" ";
 
-    if(tokenized_input[1][0]=='-' && exit==0)
+    if(tokenized_input[1][0]=='-')
     {
-        if(strlen(tokenized_input[1]) <=1)
-            exit = 1;
-
-        for(int i=1; i<strlen(tokenized_input[1]); i++)
-        {
-            if(tokenized_input[1][i]!='c' && tokenized_input[1][i]!='t' && tokenized_input[1][i]!='p')
+        for(int j=1; tokenized_input[j] && !exit;) {
+            // printf("j:%d\n", j);
+            if(strlen(tokenized_input[j]) <=1 || tokenized_input[j][0]!='-')
                 exit = 1;
-            else if (tokenized_input[1][i]=='c')
-                strcpy(name, tokenized_input[2]);
-            else if (tokenized_input[1][i]=='p')
-                p = atoi(tokenized_input[2]);
-            else if (tokenized_input[1][i]=='t')
-                t = atoi(tokenized_input[2]);
+
+            for(int i=1; i<strlen(tokenized_input[j]); i++)
+            {
+                if(tokenized_input[1][i]!='c' && tokenized_input[j][i]!='t' && tokenized_input[j][i]!='p')
+                    exit = 1;
+                else if (tokenized_input[j][i]=='p')
+                {
+                    p = atoi(tokenized_input[j+1]);
+                    j+=2;
+                    break;
+                }
+                else if (tokenized_input[j][i]=='t')
+                {
+                    t = atoi(tokenized_input[j+1]);
+                    j+=2;
+                    break;
+                }
+                else if (tokenized_input[j][i]=='c')
+                {
+                    // printf("Assigning name\n");
+                    int k;
+                    for(k=j+1; tokenized_input[k]; k++)
+                    {
+                        if(tokenized_input[k][0] == '-')
+                        {
+                            break;
+                        }
+
+                        char temp[100];
+                        sprintf(temp, " %s", tokenized_input[k]);
+                        strcat(name, temp);
+                    }
+
+                    j = k;
+                    break;
+                }
+            }
         }
     }
-
-    if(tokenized_input[3][0]=='-' && exit==0)
+    else
     {
-        if(strlen(tokenized_input[3]) <=1)
-            exit = 1;
-
-        for(int i=1; i<strlen(tokenized_input[3]); i++)
-        {
-            if(tokenized_input[3][i]!='c' && tokenized_input[3][i]!='t' && tokenized_input[3][i]!='p')
-                exit = 1;
-            else if (tokenized_input[3][i]=='c')
-                strcpy(name, tokenized_input[4]);
-            else if (tokenized_input[3][i]=='p')
-                p = atoi(tokenized_input[4]);
-            else if (tokenized_input[3][i]=='t')
-                t = atoi(tokenized_input[4]);
-        }
+        exit = 1;
     }
-
-    if(tokenized_input[5][0]=='-' && exit==0)
-    {
-        if(strlen(tokenized_input[5]) <=1)
-            exit = 1;
-
-        for(int i=1; i<strlen(tokenized_input[5]); i++)
-        {
-            if(tokenized_input[5][i]!='c' && tokenized_input[5][i]!='t' && tokenized_input[5][i]!='p')
-                exit = 1;
-            else if (tokenized_input[5][i]=='c')
-                strcpy(name, tokenized_input[6]);
-            else if (tokenized_input[5][i]=='p')
-                p = atoi(tokenized_input[6]);
-            else if (tokenized_input[5][i]=='t')
-                t = atoi(tokenized_input[6]);
-        }
-    }
+    
 
     for(int i=0; name[i]; i++)
         if(name[i]=='&')
             exit = 1;
 
-    if(exit==1 || strcmp(name, "err")==0 || p==-1 || t==-1)
+    if(exit==1 || strcmp(name, " ")==0 || p==-1 || t==-1)
     {
         printf("Error in command format\n");
+        printf("%s %d %d, e = %d\n", name, p, t, exit);
         return -1;
     }
 

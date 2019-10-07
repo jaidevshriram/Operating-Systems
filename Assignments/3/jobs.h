@@ -5,4 +5,7 @@ int check_pid_exist(int pid);
 void change_pid_status(int pid, int newstat);
 void delete_pid_queue(int pid);
 int jobs();
+int kjobs(char **tokenized_input, int count);
+int fg(char **tokenized_input, int count);
+int bg(char **tokenized_input, int count);
 int overkill();

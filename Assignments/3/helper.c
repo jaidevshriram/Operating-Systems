@@ -174,3 +174,24 @@ void removewhitespace(char *old, char *new)
 	strcpy(new, old);
 	trimTrailing(new);
 }
+
+int countfreq(char pattern[], char string[])
+{
+    int patlength = strlen(pattern);
+    int strlength = strlen(string);
+
+    int count = 0;
+
+    for(int i=0; i<=strlength - patlength; i++)
+    {
+        int j;
+        for(int j=0; j<patlength; j++)
+            if(string[i+j]!=pattern[j])
+                break;
+        
+        if(j==patlength)
+            count++;
+    }
+
+    return count;
+}
