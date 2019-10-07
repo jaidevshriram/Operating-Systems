@@ -70,16 +70,18 @@ void mergesort(int *arr, int l, int r){
     //insertion sort
     if(r-l+1<=5){
         int a[5], mi=INT_MAX, mid=-1;
-        for(int i=l;i<r;i++)
+        for(int i=l+1;i<r;i++)
         {
-            int j=i+1; 
-            for(;j<=r;j++)
-                if(arr[j]<arr[i] && j<=r) 
-                {
-                    int temp = arr[i];
-                    arr[i] = arr[j];
-                    arr[j] = temp;
-                }
+            int key = arr[i];
+            int j = i-1;
+
+            while(j>=l && arr[j]>key)
+            {
+                arr[j+1] = arr[j];
+                j--;
+            }
+
+            arr[j+1] = key;
         }
         return;
     } 
