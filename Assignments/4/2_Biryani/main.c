@@ -22,45 +22,6 @@ pthread_t person_t[SIZE];
 int robot_portions[SIZE];
 int table_portions[SIZE];
 
-void mutex_cond_initialise()
-{
-    for(int i=0; i<SIZE; i++)
-    {
-        pthread_mutex_init(&robot_table_mutex[i], NULL);
-        pthread_mutex_init(&table_person_mutex[i], NULL);
-        pthread_cond_init(&robot_cond[i], NULL);
-        pthread_cond_init(&table_cond[i], NULL);
-    }
-}
-
-void init_threads()
-{
-    //Create threads for all robots
-    for(int i=0; i<number_of_robot_chef; i++)
-        pthread_create(&robot_t[i], NULL, robot, i);
-
-    //Create threads for all tables
-    for(int i=0; i<number_of_serving_tables; i++)
-        pthread_create(&table_t[i], NULL, table, i);
-
-    //Create threads for all persons
-    for(int i=0; i<number_of_students; i++)
-        pthread_create(&person_t[i], NULL, person, i)
-
-}
-
-int main()
-{
-    //Initialize seed for random variables
-    srand(time(NULL));
-
-    //Taking input for P, V, M, K
-    scanf("%d %d %d %d", &number_of_robot_chef, &vessel_capacity, &number_of_serving_tables, &number_of_students);
-
-    mutex_cond_initialise();
-    init_threads();
-}
-
 void robot((void *)ind)
 {
     int index = (int *) ind;
@@ -104,4 +65,43 @@ void robot_start(int i)
     sleep(100*s);
     printf("Finished\n");
     reset();
+}
+
+void mutex_cond_initialise()
+{
+    for(int i=0; i<SIZE; i++)
+    {
+        pthread_mutex_init(&robot_table_mutex[i], NULL);
+        pthread_mutex_init(&table_person_mutex[i], NULL);
+        pthread_cond_init(&robot_cond[i], NULL);
+        pthread_cond_init(&table_cond[i], NULL);
+    }
+}
+
+void init_threads()
+{
+    //Create threads for all robots
+    for(int i=0; i<number_of_robot_chef; i++)
+        pthread_create(&robot_t[i], NULL, robot, i);
+
+    //Create threads for all tables
+    for(int i=0; i<number_of_serving_tables; i++)
+        pthread_create(&table_t[i], NULL, table, i);
+
+    //Create threads for all persons
+    for(int i=0; i<number_of_students; i++)
+        pthread_create(&person_t[i], NULL, person, i)
+
+}
+
+int main()
+{
+    //Initialize seed for random variables
+    srand(time(NULL));
+
+    //Taking input for P, V, M, K
+    scanf("%d %d %d %d", &number_of_robot_chef, &vessel_capacity, &number_of_serving_tables, &number_of_students);
+
+    mutex_cond_initialise();
+    init_threads();
 }
