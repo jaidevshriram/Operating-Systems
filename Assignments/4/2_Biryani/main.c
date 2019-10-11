@@ -84,7 +84,7 @@ void *robot(void *ind)
 void ready_to_serve_table(int slots, int index)
 {
     yellow();
-    printf("%d table is ready to serve %d slots\n", index, slots);
+    printf("%d table is ready to serve %d slots\n", index, table_slots[index]);
     reset();
 
     while(table_slots[index]!=0)
@@ -98,12 +98,10 @@ void *table(void *ind)
     int index = (int) ind;
     while(1 && students_left!=0)
     {
-        sleep(1);
-
         while(table_portions[index]!=0)
         {
             pthread_mutex_lock(&table_person_mutex[index]);
-            printf("table s%d lock obtained\n", index);
+            printf("table %d lock obtained\n", index);
             table_slots[index] = (MIN(1 + rand()%10, table_portions[index]));
             pthread_mutex_unlock(&table_person_mutex[index]);
 
@@ -170,7 +168,7 @@ void wait_for_slot(int index, int *table)
                     continue;
                 else
                 {
-                    table_slots[i] --;
+                    table_slots[i]--;
                     *table = i;
                     slot_not_found = 0;    
                 }
@@ -182,7 +180,7 @@ void wait_for_slot(int index, int *table)
 
 void student_in_slot(int index, int table)
 {
-    table_portions[index] -= 1;
+    table_portions[table] -= 1;
     green();
     printf("%d is in a slot on table %d, eating happily :)))\n", index, table);
     reset();
@@ -233,12 +231,6 @@ void *doomsday(void *args)
 
 void init_threads()
 {
-    //Create threads for all persons
-    for(int i=0; i<number_of_students; i++)
-        pthread_create(&person_t[i], NULL, person, (void *)i);
-
-    sleep(10);
-
     //Create threads for all robots
     for(int i=0; i<number_of_robot_chef; i++)
     {
@@ -249,11 +241,17 @@ void init_threads()
         };
     }
 
-    sleep(2);
+    sleep(10);
 
     //Create threads for all tables
     for(int i=0; i<number_of_serving_tables; i++)
         pthread_create(&table_t[i], NULL, table, (void *)i);
+
+    sleep(10);
+
+    //Create threads for all persons
+    for(int i=0; i<number_of_students; i++)
+        pthread_create(&person_t[i], NULL, person, (void *)i);
     
     pthread_t tid_end;
     pthread_create(&tid_end, NULL, doomsday, NULL);
