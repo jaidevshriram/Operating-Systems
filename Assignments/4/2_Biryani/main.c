@@ -25,6 +25,13 @@ int robot_portions[SIZE];
 int table_portions[SIZE];
 int table_slots[SIZE];
 
+int min(int a, int b)
+{
+    if(a<=b)
+        return a;
+    return b;
+}
+
 void person_enter(int i)
 {
     green();
@@ -55,7 +62,7 @@ void robot_start(int i)
 
 void biryani_ready(int index)
 {
-    while(robot_portions[index]!=0)
+    while(robot_portions[index]!=0 && students_left!=0)
         pthread_cond_wait(&robot_cond[index], &robot_table_mutex[index]);
 }
 
@@ -69,9 +76,9 @@ void *robot(void *ind)
         pthread_mutex_lock(&robot_table_mutex[index]);
         biryani_ready(index);
         int vessel_count = 1 + rand()%9;
-        robot_start(index);
         robot_portions[index] += vessel_count*vessel_capacity[index];
         pthread_mutex_unlock(&robot_table_mutex[index]);
+        robot_start(index);
     }
 
     red();
@@ -87,10 +94,10 @@ void ready_to_serve_table(int slots, int index)
     printf("%d table is ready to serve %d slots\n", index, table_slots[index]);
     reset();
 
-    while(table_slots[index]!=0)
+    while(table_slots[index]!=0 && students_left!=0)
         pthread_cond_wait(&table_cond[index], &table_person_mutex[index]);
 
-    printf("%d table has run out of slots\n", index);
+    printf("\033[1;31m%d table has run out of slots\033[0m\n", index);
 }
 
 void *table(void *ind)
@@ -98,19 +105,23 @@ void *table(void *ind)
     int index = (int) ind;
     while(1 && students_left!=0)
     {
-        while(table_portions[index]!=0)
+        while(table_portions[index]!=0 && students_left!=0)
         {
+            // printf("table %d lock attempt\n", index);
             pthread_mutex_lock(&table_person_mutex[index]);
-            printf("table %d lock obtained\n", index);
-            table_slots[index] = (MIN(1 + rand()%10, table_portions[index]));
+            // printf("table %d lock obtained\n", index);
+            table_slots[index] = min(1 + rand()%10, table_portions[index]);
+            ready_to_serve_table(table_slots[index], index);
             pthread_mutex_unlock(&table_person_mutex[index]);
 
-            ready_to_serve_table(table_slots[index], index);
-            printf("Reset table %d\n", index);
+            sleep(2);
+            printf("Reseting table %d\n", index);
         }
         
         for(int i=0; i<number_of_robot_chef && table_portions[index]==0; i++)
         {
+            // printf("robot %d lock attempt\n", i);
+
             int err = pthread_mutex_trylock(&robot_table_mutex[i]);
     
             //If lock was not obtained
@@ -121,6 +132,7 @@ void *table(void *ind)
                 pthread_cond_signal(&robot_cond[i]);
             else
             {
+                // printf("%d lock\n", index);
                 pthread_mutex_lock(&table_person_mutex[index]);
      
                 if(robot_portions[i]==0)
@@ -138,6 +150,7 @@ void *table(void *ind)
                 }          
                 
                 pthread_mutex_unlock(&table_person_mutex[index]);
+                // printf("%d unlock\n", index);
             }
 
             pthread_mutex_unlock(&robot_table_mutex[i]);
@@ -157,34 +170,44 @@ void wait_for_slot(int index, int *table)
 
     while(slot_not_found)
     {   
-        for(int i=0; i<number_of_serving_tables; i++)
+        for(int i=0; i<number_of_serving_tables && slot_not_found; i++)
         {
+            if(table_slots[i]==0)
+            {
+                pthread_cond_signal(&table_cond[i]);
+                continue;
+            }
+
+            int err = pthread_mutex_trylock(&table_person_mutex[i]);
+            // printf("%d lock\n", i);
+            if(err!=0)
+                continue;
+
             if(table_slots[i]==0)
                 pthread_cond_signal(&table_cond[i]);
             else
             {
-                int err = pthread_mutex_trylock(&table_person_mutex[i]);
-                if(err!=0)
-                    continue;
-                else
-                {
-                    table_slots[i]--;
-                    *table = i;
-                    slot_not_found = 0;    
-                }
-                pthread_mutex_unlock(&table_person_mutex[i]);
+                table_portions[i] -= 1;
+                table_slots[i]--;
+                *table = i;
+                slot_not_found = 0;    
+
+                green();
+                printf("%d is in a slot on table %d, eating happily :)))\n", index, i);
+                reset();
             }
+
+            pthread_mutex_unlock(&table_person_mutex[i]);
+            // printf("%d unlock\n", i);
+
+            if(table_slots[i]==0)
+                pthread_cond_signal(&table_cond[i]);
         }
     }
 }
 
 void student_in_slot(int index, int table)
 {
-    table_portions[table] -= 1;
-    green();
-    printf("%d is in a slot on table %d, eating happily :)))\n", index, table);
-    reset();
-
     sleep(0.5);
     red();
     printf("%d is done eating. Has left the mess :(\n", index);
@@ -222,7 +245,7 @@ void *doomsday(void *args)
             for(int i=0; i<number_of_serving_tables; i++)
                 pthread_cond_signal(&table_cond[i]);
             for(int i=0; i<number_of_robot_chef; i++)
-                pthread_cond_signal(&table_cond[i]);
+                pthread_cond_signal(&robot_cond[i]);
         }
     }
     sleep(10);
