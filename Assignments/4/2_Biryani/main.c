@@ -86,7 +86,8 @@ void ready_to_serve_table(int slots, int index)
     while(table_slots[index]!=0 && students_left!=0)
         pthread_cond_wait(&table_cond[index], &table_person_mutex[index]);
 
-    printf("\033[1;31m%d table has run out of slots\033[0m\n", index);
+    if(students_left!=0)
+        printf("\033[1;31m%d table has run out of slots\033[0m\n", index);
 }
 
 void *table(void *ind)
@@ -255,7 +256,10 @@ void init_threads()
 
     //Create threads for all persons
     for(int i=0; i<number_of_students; i++)
+    {
+        sleep(rand()%3);
         pthread_create(&person_t[i], NULL, person, (void *)i);
+    }
     
     pthread_t tid_end;
     pthread_create(&tid_end, NULL, doomsday, NULL);
