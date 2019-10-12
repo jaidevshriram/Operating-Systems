@@ -83,7 +83,6 @@ void *robot(void *ind)
 
 void ready_to_serve_table(int slots, int index)
 {
-    yellow();
     printf("\033[1;33m%d table is ready to serve %d slots\033[0m\n", index, table_slots[index]);
 
     while(table_slots[index]!=0 && students_left!=0)
