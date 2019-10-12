@@ -34,30 +34,22 @@ int min(int a, int b)
 
 void person_enter(int i)
 {
-    green();
-    printf("Person %d has entered Kadamba!\n", i);
-    reset();
+    printf("\033[1;32mPerson %d has entered Kadamba!\033[0m\n", i);
 }
 
 void person_leave(int i)
 {
-    red();
-    printf("Person %d has left the mess\n", i);
-    reset();
+    printf("\033[1;31mPerson %d has left the mess\033[0m\n", i);
 }
 
 void robot_start(int i)
 {
-    cyan();
-    printf("Robot %d has started preparations....\n", i);
-    reset();
+    printf("\033[1;36mRobot %d has started preparations...\033[0m\n", i);
 
     int s = 2 + rand()%4;
     sleep(s);
 
-    cyan();
-    printf("Robot %d finished preparations\n", i);
-    reset();
+    printf("\033[1;36mRobot %d finished preparations\033[0m\n", i);
 }
 
 void biryani_ready(int index)
@@ -81,9 +73,7 @@ void *robot(void *ind)
         robot_start(index);
     }
 
-    red();
-    printf("%d robot shutting down\n", index);
-    reset();
+    printf("\033[1;31m%d robot shutting down\033[0m\n", index);
 
     return NULL;
 }
@@ -91,8 +81,7 @@ void *robot(void *ind)
 void ready_to_serve_table(int slots, int index)
 {
     yellow();
-    printf("%d table is ready to serve %d slots\n", index, table_slots[index]);
-    reset();
+    printf("\033[1;33m%d table is ready to serve %d slots\033[0m\n", index, table_slots[index]);
 
     while(table_slots[index]!=0 && students_left!=0)
         pthread_cond_wait(&table_cond[index], &table_person_mutex[index]);
@@ -115,7 +104,7 @@ void *table(void *ind)
             pthread_mutex_unlock(&table_person_mutex[index]);
 
             sleep(2);
-            printf("Reseting table %d\n", index);
+            printf("Resetting table %d\n", index);
         }
         
         for(int i=0; i<number_of_robot_chef && table_portions[index]==0; i++)
@@ -139,9 +128,7 @@ void *table(void *ind)
                     pthread_cond_signal(&robot_cond[i]);
                 else
                 {
-                    blue();
-                    printf("%d obtained vessel from robot %d of capacity %d\n", index, i, vessel_capacity[i]);
-                    reset();
+                    printf("\033[1;34m%d obtained vessel from robot %d of capacity %d\033[0m\n", index, i, vessel_capacity[i]);
                     table_portions[index] += vessel_capacity[i];
                     robot_portions[i] -= vessel_capacity[i];
                     
@@ -157,9 +144,7 @@ void *table(void *ind)
         }
     }
 
-    red();
-    printf("%d table closing\n", index);
-    reset();
+    printf("\033[1;31m%d table closing\033[0m\n", index);
 }
 
 void wait_for_slot(int index, int *table)
@@ -192,9 +177,7 @@ void wait_for_slot(int index, int *table)
                 *table = i;
                 slot_not_found = 0;    
 
-                green();
-                printf("%d is in a slot on table %d, eating happily :)))\n", index, i);
-                reset();
+                printf("\033[1;32m%d is in a slot on table %d, eating happily :)))\033[0m\n", index, i);
             }
 
             pthread_mutex_unlock(&table_person_mutex[i]);
@@ -209,9 +192,7 @@ void wait_for_slot(int index, int *table)
 void student_in_slot(int index, int table)
 {
     sleep(0.5);
-    red();
-    printf("%d is done eating. Has left the mess :(\n", index);
-    reset();
+    printf("\033[1;31m%d is done eating. Has left the mess :(\033[0m\n", index);
 }
 
 void *person(void *ind)
