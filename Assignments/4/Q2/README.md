@@ -170,7 +170,9 @@ Once the table has food ready, it acts like a producer and is ready to create sl
 </pre>
 
 This code will generate number of slots available on the table, hence the use of lock to prevent person from accessing it at the same time.
-Once the slots are ready, `ready_to_serve_table()` is called. 
+Once the slots are ready, `ready_to_serve_table()` is called.
+
+Important Assumption that was made for this solution was that waiting students meant students left. Hence, ready to serve table will only start serving once all slots are taken, or no students are left to come. I had initially coded the solution in a way such that every person would be served as soon as they get a slot. This and my current solution were clarifications from TA's on personal chat. 
 
 <pre>
 <code>
