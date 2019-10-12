@@ -71,63 +71,67 @@ Portion of the table function:
 
 <pre>
 <code>
-void *table(void *ind)
-{
-    int index = (int) ind;
-    while(1 && students_left!=0)
+<pre>
+
+    void *table(void *ind)
     {
-        .
-        .
-        .
-            Ready to serve food code
-        .
-        .
-        .
-
-        if(table_portions[index]==0)
+        int index = (int) ind;
+        while(1 && students_left!=0)
         {
-            printf("\033[1;34mServing Container of table %d is empty, waiting for refill\n", index);
-        }
-        
-        for(int i=0; i<number_of_robot_chef && table_portions[index]==0; i++)
-        {
-            // printf("robot %d lock attempt\n", i);
+            .
+            .
+            .
+                Ready to serve food code
+            .
+            .
+            .
 
-            int err = pthread_mutex_trylock(&robot_table_mutex[i]);
-    
-            //If lock was not obtained
-            if(err != 0)
-                continue;
-    
-            if(robot_portions[i]==0)
-                pthread_cond_signal(&robot_cond[i]);
-            else
+            if(table_portions[index]==0)
             {
-                // printf("%d lock\n", index);
-                pthread_mutex_lock(&table_person_mutex[index]);
-     
+                printf("\033[1;34mServing Container of table %d is empty, waiting for refill\n", index);
+            }
+            
+            for(int i=0; i<number_of_robot_chef && table_portions[index]==0; i++)
+            {
+                // printf("robot %d lock attempt\n", i);
+
+                int err = pthread_mutex_trylock(&robot_table_mutex[i]);
+        
+                //If lock was not obtained
+                if(err != 0)
+                    continue;
+        
                 if(robot_portions[i]==0)
                     pthread_cond_signal(&robot_cond[i]);
                 else
                 {
-                    printf("\033[1;34m%d obtained vessel from robot %d of capacity %d\033[0m\n", index, i, vessel_capacity[i]);
-                    table_portions[index] += vessel_capacity[i];
-                    robot_portions[i] -= vessel_capacity[i];
-                    
+                    // printf("%d lock\n", index);
+                    pthread_mutex_lock(&table_person_mutex[index]);
+        
                     if(robot_portions[i]==0)
-                        pthread_cond_signal(&robot_cond[i]); 
-                }          
-                
-                pthread_mutex_unlock(&table_person_mutex[index]);
-                // printf("%d unlock\n", index);
-            }
+                        pthread_cond_signal(&robot_cond[i]);
+                    else
+                    {
+                        printf("\033[1;34m%d obtained vessel from robot %d of capacity %d\033[0m\n", index, i, vessel_capacity[i]);
+                        table_portions[index] += vessel_capacity[i];
+                        robot_portions[i] -= vessel_capacity[i];
+                        
+                        if(robot_portions[i]==0)
+                            pthread_cond_signal(&robot_cond[i]); 
+                    }          
+                    
+                    pthread_mutex_unlock(&table_person_mutex[index]);
+                    // printf("%d unlock\n", index);
+                }
 
-            pthread_mutex_unlock(&robot_table_mutex[i]);
+                pthread_mutex_unlock(&robot_table_mutex[i]);
+            }
         }
+
+        printf("\033[1;31m%d table closing\033[0m\n", index);
     }
 
-    printf("\033[1;31m%d table closing\033[0m\n", index);
-}
+</pre>
 </code>
 </pre>
 
