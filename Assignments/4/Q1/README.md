@@ -116,7 +116,7 @@ int *sharemem(size_t size){
     return (int*)shmat(shm_id, NULL, 0);
 }
 </code>
-<pre>
+</pre>
 
 ## Multi-Threaded Quicksort
 
