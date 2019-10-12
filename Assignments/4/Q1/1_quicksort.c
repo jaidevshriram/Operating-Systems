@@ -179,8 +179,6 @@ void *threaded_quicksort(void *temp_args)
     pthread_join(thread_id_1, NULL);
 
     pthread_join(thread_id_2, NULL);
-
-    normal_quicksort(arr, mid+1, right);
 }
 
 void start_process_quicksort(int a[], int n)
@@ -189,8 +187,8 @@ void start_process_quicksort(int a[], int n)
    for(int i=0; i<n; i++)
         arr[i] = a[i];
     process_quicksort(arr, 0, n-1);
-    // for(int i=0; i<n i++)
-    //     printf("%d ", arr[i]);
+    // for(int i=0; i<n; i++)
+        // printf("%d ", arr[i]);
 }
 
 void start_threaded_quicksort(int a[], int n)
@@ -215,21 +213,21 @@ void main()
     int arr[1000]; 
 
     for(int i=0; i<n; i++)
-        arr[i] = 10-i;
+        arr[i] = n-i;
 
     clock_t time_normal;
     time_normal = clock();
-    normal_quicksort(arr, 0, 9);
+    normal_quicksort(arr, 0, n-1);
     time_normal = clock() - time_normal;
 
     clock_t time_process;
     time_process = clock();
-    start_process_quicksort(arr, 10);
+    start_process_quicksort(arr, n);
     time_process = clock() - time_process;
 
     clock_t time_thread;
     time_thread = clock();
-    start_threaded_quicksort(arr, 10);
+    start_threaded_quicksort(arr, n);
     time_thread = clock() - time_process;
 
     printf("%f %f %f\n", ((double)time_normal)/CLOCKS_PER_SEC, ((double)time_process)/CLOCKS_PER_SEC, ((double)time_thread)/CLOCKS_PER_SEC);
