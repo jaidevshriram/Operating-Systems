@@ -22,14 +22,19 @@ typedef struct rider_type {
 } Rider;
 
 sem_t cab_sem;
+sem_t server_sem;
 
-int number_of_cabs, number_of_riders, number_of_servers;
+int number_of_cabs, number_of_riders, number_of_servers, riders_left;
 
 Cab cabs[SIZE];
 Rider riders[SIZE];
 
 pthread_t rider_tid[SIZE];
 pthread_t server_tid[SIZE];
+
+int payment_rider[SIZE];
+pthread_cond_t payment_cond_rider[SIZE];
+pthread_mutex_t payment_mutex_rider[SIZE];
 
 void reset_cab(Cab *cab)
 {
@@ -184,7 +189,24 @@ void wait_pool(int index)
 
 void make_payment(int index)
 {
-
+    sem_wait(&server_sem);
+    int payment_not_done = 1;
+    while(payment_not_done)
+    {
+        for(int i=0; i<number_of_servers; i++)
+        {
+            if(payment_rider[i]==-1)
+            {
+                pthread_mutex_lock(&payment_mutex_rider[i]);
+                payment_rider[i] = index;
+                pthread_mutex_unlock(&payment_mutex_rider[i]);
+                pthread_cond_signal(&payment_cond_rider[i]);
+                payment_not_done = 0;
+                break;
+            }
+        }
+    }
+    sem_post(&server_sem);
 }
 
 void *rider(void *ind)
@@ -212,19 +234,42 @@ void *rider(void *ind)
         rider_leave(index);
         make_payment(index);
     }
+
+    riders_left-=1;
 }
 
 void *payment_server(void *ind)
 {
+    int index = (int) ind;
+    while(riders_left!=0)
+    {
+        while(payment_rider[index]==-1)
+            pthread_cond_wait(&payment_cond_rider[index], &payment_mutex_rider[index]);
+        if(riders_left!=0)
+        {
+            sleep(2);
+            printf("Payment Server %d recieved payment from rider %d\n", index, payment_rider[index]);
+        }
+        payment_rider[index]=-1;
+    }
+}
 
+void *doomsday(void *args)
+{
+    while(riders_left!=0);
+
+    for(int i=0; i<number_of_servers; i++)
+        pthread_cond_signal(&payment_cond_rider[i]);
+    printf("Simulation Ends. Hallelujah\n");
+    exit(0);
 }
 
 void start_day()
 {
-    // for(int i=0; i<number_of_servers; i++)
-    //     pthread_create(&server_tid[i], NULL, payment_server, (void*)i);
+    for(int i=0; i<number_of_servers; i++)
+        pthread_create(&server_tid[i], NULL, payment_server, (void*)i);
     
-    // sleep(5);
+    sleep(5);
 
     for(int i=0; i<number_of_riders; i++)
     {
@@ -232,21 +277,34 @@ void start_day()
         pthread_create(&rider_tid[i], NULL, rider, (void*)i);
     }
 
+    pthread_t tid;
+    pthread_create(&tid, NULL, doomsday, NULL);
+
     pthread_exit(NULL);
 }
 
 void init_semaphore_cab()
 {
     sem_init(&cab_sem, 0, number_of_cabs);
+    sem_init(&server_sem, 0, number_of_servers);
     
     for(int i=0; i<number_of_cabs; i++)
         pthread_mutex_init(&(cabs[i].mutex), NULL);
+
+    for(int i=0; i<number_of_servers; i++)
+    {
+        payment_rider[i] = -1;
+        pthread_mutex_init(&payment_mutex_rider[i], NULL);
+        pthread_cond_init(&payment_cond_rider[i], NULL);
+    }
 }
 
 int main()
 {
     srand(time(NULL));
     scanf("%d %d %d", &number_of_cabs, &number_of_riders, &number_of_servers);
+
+    riders_left = number_of_riders;
 
     init_semaphore_cab();
     start_day();
