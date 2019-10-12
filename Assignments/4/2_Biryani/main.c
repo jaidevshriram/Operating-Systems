@@ -48,14 +48,16 @@ void robot_start(int i)
 
     int s = 2 + rand()%4;
     sleep(s);
-
-    printf("\033[1;36mRobot %d finished preparations\033[0m\n", i);
 }
 
 void biryani_ready(int index)
 {
+    printf("Robot %d is waiting for all vessels to be emptied\n", index);
     while(robot_portions[index]!=0 && students_left!=0)
         pthread_cond_wait(&robot_cond[index], &robot_table_mutex[index]);
+
+    if(robot_portions[index]==0 && students_left!=0)
+        printf("All the vessels prepared by robot %d are emptied. Resuming cooking now\n", index);
 }
 
 void *robot(void *ind)
@@ -71,6 +73,7 @@ void *robot(void *ind)
         robot_portions[index] += vessel_count*vessel_capacity[index];
         pthread_mutex_unlock(&robot_table_mutex[index]);
         robot_start(index);
+        printf("\033[1;36mRobot %d finished preparations of %d vessels of capacity %d\033[0m\n", index, vessel_count, vessel_capacity[index]);
     }
 
     printf("\033[1;31m%d robot shutting down\033[0m\n", index);
@@ -106,6 +109,11 @@ void *table(void *ind)
 
             sleep(2);
             printf("Resetting table %d\n", index);
+        }
+
+        if(table_portions[index]==0)
+        {
+            printf("\033[1;34mServing Container of table %d is empty, waiting for refill\n", index);
         }
         
         for(int i=0; i<number_of_robot_chef && table_portions[index]==0; i++)
@@ -176,9 +184,9 @@ void wait_for_slot(int index, int *table)
                 table_portions[i] -= 1;
                 table_slots[i]--;
                 *table = i;
+                students_left-=1;
+                printf("\033[1;32m%d is in a slot on table %d\033[0m\n", index, *table);
                 slot_not_found = 0;    
-
-                printf("\033[1;32m%d is in a slot on table %d, eating happily :)))\033[0m\n", index, i);
             }
 
             pthread_mutex_unlock(&table_person_mutex[i]);
@@ -188,6 +196,9 @@ void wait_for_slot(int index, int *table)
                 pthread_cond_signal(&table_cond[i]);
         }
     }
+
+    while(table_slots[*table]!=0 && students_left!=0);
+    printf("\033[1;32m%d is in a slot on table %d, has been served.\033[0m\n", index, *table);
 }
 
 void student_in_slot(int index, int table)
@@ -202,7 +213,6 @@ void *person(void *ind)
     int table;
     wait_for_slot(index, &table);
     student_in_slot(index, table);
-    students_left-=1;
 }
 
 void mutex_cond_initialise()
