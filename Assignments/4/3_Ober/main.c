@@ -50,6 +50,28 @@ void rider_in_cab(int index, int cab)
     printf("\033[1;33mPerson %d is in cab %d\033[0m\n", index, cab);
 }
 
+void ride_cab(int index, int cab_no)
+{
+    rider_in_cab(index, cab_no);
+    sleep(riders[index].ride_time);
+    if(riders[index].cab_type == 0)
+    {
+        reset_cab(&cabs[cab_no]);
+        sem_post(&cab_sem);
+    }
+    else
+    {
+        pthread_mutex_lock(&cabs[cab_no].mutex);
+        cabs[cab_no].count--;
+        if(cabs[cab_no].count == 0)
+        {
+            cabs[cab_no].state = 0;
+            sem_post(&cab_sem);
+        }
+        pthread_mutex_unlock(&cabs[cab_no].mutex);
+    }
+}
+
 void wait_premier(int index)
 {
     /* Calculate relative interval as current time plus maxwait time */
@@ -57,33 +79,91 @@ void wait_premier(int index)
     struct timespec ts;
     if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
     {
-        /* handle error */
         return -1;
     }
 
-    ts.tv_sec += 10;
-    while ((s = sem_timedwait(&full, &ts)) == -1 && errno == EINTR)
-                continue;       /* Restart if interrupted by handler */
-    /* Check what happened */
-    if (s == -1)
+    ts.tv_sec += riders[index].max_wait_time;
+    int err = sem_timedwait(&cab_sem, &ts);
+
+    if (err == -1)
     {
-        if (errno == ETIMEDOUT)
-            printf("sem_timedwait() timed out\n");
-        else
-            perror("sem_timedwait");
-    } else
-            printf("sem_timedwait() succeeded\n");
+        printf("\033[1;31mPerson %d hates Ober. Waiting time exceeded max wait time.\033[0m\n");
+        exit(1);
+    }
+
     int cab_number = -1;
     while(cab_number == -1) 
     {
         for(int i=0; i<number_of_cabs; i++)
             if(cabs[i].state == 0)
             {
+                pthread_mutex_lock(&cabs[i].mutex);
                 cabs[i].state = 1;
+                cabs[i].count = 1;
+                pthread_mutex_unlock(&cabs[i].mutex);
                 cab_number = i;
                 break;
             }
     }
+
+    ride_cab(index, cab_number);
+}
+
+void wait_pool(int index)
+{
+    int cab_number = -1;
+
+    for(int i=0; i<number_of_cabs; i++)
+        if(cabs[i].state == 2)
+        {
+            pthread_mutex_lock(&cabs[i].mutex);
+            cabs[i].state = 3;
+            cabs[i].count = 2;
+            pthread_mutex_unlock(&cabs[i].mutex);
+            cab_number = i;
+            break;
+        }
+
+    if(cab_number == -1)
+    {
+        /* Calculate relative interval as current time plus maxwait time */
+
+        struct timespec ts;
+        if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
+        {
+            return -1;
+        }
+
+        ts.tv_sec += riders[index].max_wait_time;
+        int err = sem_timedwait(&cab_sem, &ts);
+
+        if (err == -1)
+        {
+            printf("\033[1;31mPerson %d hates Ober. Waiting time exceeded max wait time.\033[0m\n");
+            exit(1);
+        } 
+
+        while(cab_number == -1)
+        {
+            for(int i=0; i<number_of_cabs; i++)
+                if(cabs[i].state == 2 || cabs[i].state == 0)
+                {
+                    pthread_mutex_lock(&cabs[i].mutex);
+                    cabs[i].state +=1;
+                    cabs[i].count++;
+                    pthread_mutex_unlock(&cabs[i].mutex);
+                    cab_number = i;
+                    break;
+                }
+        }
+    
+    }
+
+    ride_cab(index, cab_number);
+}
+
+void make_payment(int index)
+{
 
 }
 
@@ -106,8 +186,8 @@ void *rider(void *ind)
         }
     }
 
-    make_payment(index);
     rider_leave(index);
+    make_payment(index);
 }
 
 void *payment_server(void *ind)
@@ -117,10 +197,10 @@ void *payment_server(void *ind)
 
 void start_day()
 {
-    for(int i=0; i<number_of_servers; i++)
-        pthread_create(&server_tid[i], NULL, payment_server, (void*)i);
+    // for(int i=0; i<number_of_servers; i++)
+    //     pthread_create(&server_tid[i], NULL, payment_server, (void*)i);
     
-    sleep(5);
+    // sleep(5);
 
     for(int i=0; i<number_of_riders; i++)
     {
