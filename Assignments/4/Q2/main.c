@@ -90,11 +90,13 @@ void ready_to_serve_table(int slots, int index)
 
     if(students_left!=0)
         printf("\033[1;31m%d table has run out of slots\033[0m\n", index);
+    sleep(2);
 }
 
 void *table(void *ind)
 {
     int index = (int) ind;
+    int not_printed = 1;
     while(1 && students_left!=0)
     {
         while(table_portions[index]!=0 && students_left!=0)
@@ -108,11 +110,15 @@ void *table(void *ind)
 
             sleep(2);
             printf("Resetting table %d\n", index);
+
+            if(table_portions[index]==0)
+                not_printed = 1;
         }
 
-        if(table_portions[index]==0)
+        if(table_portions[index]==0 && not_printed)
         {
             printf("\033[1;34mServing Container of table %d is empty, waiting for refill\n", index);
+            not_printed = 0;
         }
         
         for(int i=0; i<number_of_robot_chef && table_portions[index]==0; i++)
