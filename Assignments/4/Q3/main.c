@@ -206,7 +206,6 @@ void make_payment(int index)
             }
         }
     }
-    sem_post(&server_sem);
 }
 
 void *rider(void *ind)
@@ -244,7 +243,10 @@ void *payment_server(void *ind)
     while(riders_left!=0)
     {
         while(payment_rider[index]==-1)
+        {
             pthread_cond_wait(&payment_cond_rider[index], &payment_mutex_rider[index]);
+            sem_post(&server_sem);
+        }
         if(riders_left!=0)
         {
             sleep(2);
@@ -252,6 +254,7 @@ void *payment_server(void *ind)
         }
         payment_rider[index]=-1;
     }
+    sem_post(&server_sem);
 }
 
 void *doomsday(void *args)
@@ -274,7 +277,7 @@ void start_day()
 
     for(int i=0; i<number_of_riders; i++)
     {
-        sleep(rand()%2);
+        sleep(1 + rand()%2);
         pthread_create(&rider_tid[i], NULL, rider, (void*)i);
     }
 
