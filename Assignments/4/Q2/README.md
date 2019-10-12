@@ -71,8 +71,7 @@ Portion of the table function:
 
 <pre>
 <code>
-<pre>
-
+`
     void *table(void *ind)
     {
         int index = (int) ind;
@@ -131,8 +130,7 @@ Portion of the table function:
         printf("\033[1;31m%d table closing\033[0m\n", index);
     }
 
-</pre>
-</code>
+<code>
 </pre>
 
 The code is pretty straightforward and illustrates obtaining the lock from the robot, and then obtaining lock for the table itself to ensure that no person has access to the table at the moment, since table_portion will be updated.
