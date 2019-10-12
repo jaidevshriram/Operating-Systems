@@ -258,10 +258,11 @@ void *doomsday(void *args)
 {
     while(riders_left!=0);
 
+    // sleep(15);
+
     for(int i=0; i<number_of_servers; i++)
         pthread_cond_signal(&payment_cond_rider[i]);
     printf("Simulation Ends. Hallelujah\n");
-    exit(0);
 }
 
 void start_day()
@@ -280,7 +281,13 @@ void start_day()
     pthread_t tid;
     pthread_create(&tid, NULL, doomsday, NULL);
 
-    pthread_exit(NULL);
+    for(int i=0; i<number_of_riders; i++)
+        pthread_join(rider_tid[i], NULL);
+    for(int i=0; i<number_of_servers; i++)
+        pthread_join(server_tid[i], NULL);
+    pthread_join(tid, NULL);
+
+    // pthread_exit(NULL);
 }
 
 void init_semaphore_cab()
