@@ -112,6 +112,11 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+  //Include the new fields
+  p->ctime = ticks;
+  p->etime = 0;
+  p-> rtime = 0;
+
   return p;
 }
 
@@ -314,7 +319,7 @@ wait(void)
 // Extends the wait sys call
 // Return -1 if this process has no children.
 int
-waitx(void)
+waitx(int *wtime, int *rtime)
 {
   struct proc *p;
   int havekids, pid;
@@ -340,6 +345,11 @@ waitx(void)
         p->killed = 0;
         p->state = UNUSED;
         release(&ptable.lock);
+
+        //Including fields
+        *wtime = p->etime - p->rtime - p->ctime;
+        *rtime = p->rtime;
+
         return pid;
       }
     }
