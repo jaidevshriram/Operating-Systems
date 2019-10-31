@@ -11,5 +11,10 @@
   "license": "ISC",
   "devDependencies": {
     "husky": "^3.0.9"
-  }
+  },
+  "husky" : {
+    "hooks": {
+      "pre-commit": "make clean"
+    }
+  } 
 }
