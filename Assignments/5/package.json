@@ -1,0 +1,15 @@
+{
+  "name": "5",
+  "version": "1.0.0",
+  "description": "xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix Version 6 (v6).  xv6 loosely follows the structure and style of v6, but is implemented for a modern x86-based multiprocessor using ANSI C.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "precommit": "make clean"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^3.0.9"
+  }
+}
