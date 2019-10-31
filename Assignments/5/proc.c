@@ -115,7 +115,7 @@ found:
   //Include the new fields
   p->ctime = ticks;
   p->etime = 0;
-  p-> rtime = 0;
+  p->rtime = 0;
 
   return p;
 }
@@ -266,7 +266,8 @@ exit(void)
     }
   }
 
-  // Jump into the scheduler, never to return.
+  // Jump into the scheduler, never to return
+  curproc->etime = ticks;
   curproc->state = ZOMBIE;
   sched();
   panic("zombie exit");
@@ -349,6 +350,8 @@ waitx(int *wtime, int *rtime)
         //Including fields
         *wtime = p->etime - p->rtime - p->ctime;
         *rtime = p->rtime;
+
+        // cprintf("%d is runtime\n", p->rtime);
 
         return pid;
       }

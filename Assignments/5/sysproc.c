@@ -30,7 +30,7 @@ int sys_waitx(void)
 {
   int *wtime, *rtime;
 
-  if(argptr(0, (void *)&wtime, sizeof(int)) !=0 || argptr(0, (void *)&rtime, sizeof(int)) != 0)
+  if(argptr(0, (char **)&wtime, sizeof(int)) !=0 || argptr(1, (char **)&rtime, sizeof(int)) != 0)
     return -1;
   
   return waitx(wtime, rtime);
