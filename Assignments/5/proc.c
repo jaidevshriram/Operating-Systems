@@ -10,6 +10,7 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+  struct proc_stat proc_stat[NPROC]; 
 } ptable;
 
 static struct proc *initproc;
@@ -74,11 +75,12 @@ static struct proc*
 allocproc(void)
 {
   struct proc *p;
+  struct proc_stat *p_stat;
   char *sp;
 
   acquire(&ptable.lock);
 
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++, p_stat++)
     if(p->state == UNUSED)
       goto found;
 
@@ -88,6 +90,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p_stat->pid = p->pid;
 
   release(&ptable.lock);
 
