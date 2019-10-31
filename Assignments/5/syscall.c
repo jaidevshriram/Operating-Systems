@@ -101,7 +101,7 @@ extern int sys_sbrk(void);
 extern int sys_sleep(void);
 extern int sys_unlink(void);
 extern int sys_wait(void);
-extern int sys_waitx(int *, int *);
+extern int sys_waitx(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 
