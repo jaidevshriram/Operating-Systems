@@ -377,7 +377,7 @@ int
 set_priority(int pid, int priority)
 {
   struct proc *p;
-  int not_found = 1
+  int not_found = 1;
 
   acquire(&ptable.lock);
 
