@@ -52,7 +52,6 @@ struct proc {
   unsigned int ctime;                   // Creation Time
   unsigned int rtime;                   // Run Time
   unsigned int etime;                   // End Time
-  int priority;                // Process Priority
 };
 
 // Process memory is laid out contiguously, low addresses first:
@@ -60,13 +59,3 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
-
-
-//Information about process
-struct proc_stat {
-  int pid;                      // PID of each Process
-  float runtime;                // Runtime of the process
-  int num_run;                  // Number of times, process is executed
-  int current_queue;            // Currently Assigned Queue
-  int ticks[5];                 // Number of ticks each process has received at each of the 5 priority queue
-}

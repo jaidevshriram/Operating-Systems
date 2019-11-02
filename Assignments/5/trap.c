@@ -53,6 +53,16 @@ trap(struct trapframe *tf)
       ticks++;
       wakeup(&ticks);
       release(&tickslock);
+
+      if(myproc())
+      {
+        if(myproc()->state == RUNNING)
+        {
+          // cprintf("test %d\n", myproc()->rtime);
+          myproc()->rtime =  myproc()->rtime + 1;
+          // cprintf("test2 %d\n", myproc()->rtime);
+        }
+      }
     }
     lapiceoi();
     break;
