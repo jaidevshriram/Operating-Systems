@@ -99,3 +99,15 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+//Changes priority. Always returns 0
+int
+sys_set_priority(void)
+{
+  int pid, priority;
+  if(argint(0, &pid) < 0 || argint(1, &priority) < 0)
+    return -1;
+
+  set_priority(pid, priority);
+  return 0;
+}
