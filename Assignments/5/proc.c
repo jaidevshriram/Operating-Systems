@@ -277,27 +277,6 @@ exit(void)
   panic("zombie exit");
 }
 
-
-//System call to print information on all running/sleeping processes
-int
-ps(void)
-{
-  struct proc *p;
-
-  acquire(&ptable.lock);
-  cprintf("NAME \t pid \t state \t priority\n");
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->state == SLEEPING)
-      cprintf("%s \t %d \t SLEEPING \t %d \t %d\n", p->name, p->pid, p->priority, p->ctime);
-    else if(p->state == RUNNING)
-      cprintf("%s \t %d \t RUNNING \t %d \t %d\n", p->name, p->pid, p->priority, p->ctime);
-    else if(p->state == RUNNABLE)
-      cprintf("%s \t %d \t RUNNABLE \t %d \t %d\n", p->name, p->pid, p->priority, p->ctime);
-  }
-  release(&ptable.lock);
-  return 0;
-}
-
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
 int
@@ -399,22 +378,20 @@ int
 set_priority(int pid, int priority)
 {
   struct proc *p;
-  int not_found = 1, ret = 0;
+  int not_found = 1;
 
   acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC] && not_found; p++) {
     if(p->pid == pid){
-      ret = p->priority;
       p->priority = priority;
-      cprintf("%d process set to priority %d\n", pid, priority);
       not_found = 0;
     }
   }
 
   release(&ptable.lock);
 
-  return ret;
+  return 0;
 }
 
 //PAGEBREAK: 42
@@ -433,47 +410,51 @@ scheduler(void)
   c->proc = 0;
   
   for(;;){
-
     // Enable interrupts on this processor.
     sti();
-
-    // ------------------------ START FCFS --------------------------
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
 
-    if(p->state != RUNNABLE)
-      continue;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      
+      if(p->state != RUNNABLE)
+        continue;
 
-    struct proc *lowest_p;
-    lowest_p = p;
+      #ifdef FCFS
+        // --------------------- START FCFS -----------------------
 
-    // ------------------------ END FCFS ----------------------------
+        struct proc *lowest_p = p;
 
-    // // --------------------- START PRIORITY -----------------------
+        if(p->pid > 2)
+        {
+          if(p->ctime < lowest_p->ctime)
+            lowest_p = p;
+        }
 
-    // // Loop over process table looking for process to run.
-    // acquire(&ptable.lock);
+        if(p->state == RUNNABLE)
+          p = lowest_p;
 
-    // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    //   if(p->state != RUNNABLE)
-    //     continue;
+        // ---------------------- END FCFS -------------------------
 
+      #else
+      #ifdef PRIORITY
+        // --------------------- START PRIORITY -----------------------
+        struct proc *highest_p;
+        highest_p = p;
 
-    //   struct proc *highest_p;
-    //   highest_p = p;
+        for(struct proc *j = ptable.proc; j < &ptable.proc[NPROC]; j++){
+          if(j->state != RUNNABLE)
+            continue;
+          if(highest_p->priority > j->priority)
+            highest_p = j;
+        }
 
-    //   for(struct proc *j = ptable.proc; j < &ptable.proc[NPROC]; j++){
-    //     if(j->state != RUNNABLE)
-    //       continue;
-    //     if(highest_p->priority > j->priority)
-    //       highest_p = j;
-    //   }
+        p = highest_p;
+        // ---------------------- END PRIORITY -------------------------
+      #endif
+      #endif
 
-    //   p = highest_p;
-
-
-    //   // ---------------------- END PRIORITY -------------------------
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -488,6 +469,7 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+    }
 
     release(&ptable.lock);
 
