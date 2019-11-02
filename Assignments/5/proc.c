@@ -91,6 +91,7 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p_stat->pid = p->pid;
+  p->priority = 60;
 
   release(&ptable.lock);
 
@@ -320,6 +321,7 @@ wait(void)
   }
 }
 
+
 // Extends the wait sys call
 // Return -1 if this process has no children.
 int
@@ -369,6 +371,26 @@ waitx(int *wtime, int *rtime)
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
+
+//Change Priority
+int
+set_priority(int pid, int priority)
+{
+  struct proc *p;
+  int not_found = 1
+
+  acquire(&ptable.lock);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC] && not_found; p++) {
+    if(p->pid == pid){
+      p->priority = priority;
+      not_found = 0;
+    }
+  }
+
+  release(&ptable.lock);
+
+  return 0;
 }
 
 //PAGEBREAK: 42
