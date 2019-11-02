@@ -75,12 +75,12 @@ static struct proc*
 allocproc(void)
 {
   struct proc *p;
-  struct proc_stat *p_stat;
+  // struct proc_stat *p_stat;
   char *sp;
 
   acquire(&ptable.lock);
 
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++, p_stat++)
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == UNUSED)
       goto found;
 
@@ -90,7 +90,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p_stat->pid = p->pid;
+  // p_stat->pid = p->pid;
   p->priority = 60;
 
   release(&ptable.lock);
@@ -371,13 +371,14 @@ waitx(int *wtime, int *rtime)
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
+}
 
 //Change Priority
 int
 set_priority(int pid, int priority)
 {
   struct proc *p;
-  int not_found = 1
+  int not_found = 1;
 
   acquire(&ptable.lock);
 
