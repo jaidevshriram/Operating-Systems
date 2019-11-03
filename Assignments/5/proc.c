@@ -288,11 +288,11 @@ ps(void)
   cprintf("NAME \t pid \t state \t priority\n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state == SLEEPING)
-      cprintf("%s \t %d \t SLEEPING \t %d \n", p->name, p->pid, p->priority);
+      cprintf("%s \t %d \t SLEEPING \t %d \t %d\n", p->name, p->pid, p->priority, p->ctime);
     else if(p->state == RUNNING)
-      cprintf("%s \t %d \t RUNNING \t %d \n", p->name, p->pid, p->priority);
+      cprintf("%s \t %d \t RUNNING \t %d \t %d\n", p->name, p->pid, p->priority, p->ctime);
     else if(p->state == RUNNABLE)
-      cprintf("%s \t %d \t RUNNABLE \t %d \n", p->name, p->pid, p->priority);
+      cprintf("%s \t %d \t RUNNABLE \t %d \t %d\n", p->name, p->pid, p->priority, p->ctime);
   }
   release(&ptable.lock);
   return 0;
@@ -434,34 +434,23 @@ scheduler(void)
   
   for(;;){
 
+    // Enable interrupts on this processor.
+    sti();
+
     // ------------------------ START FCFS --------------------------
- 
+
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
 
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    if(p->state != RUNNABLE)
+      continue;
 
-
-      struct proc *lowest_p;
-      lowest_p = p;
-
-      for(struct proc *j = ptable.proc; j < &ptable.proc[NPROC]; j++){
-        if(j->state != RUNNABLE)
-          continue;
-        if(lowest_p->ctime < j->ctime)
-          lowest_p = j;
-      }
-
-      p = lowest_p;
+    struct proc *lowest_p;
+    lowest_p = p;
 
     // ------------------------ END FCFS ----------------------------
 
     // // --------------------- START PRIORITY -----------------------
-
-    // // Enable interrupts on this processor.
-    // sti();
 
     // // Loop over process table looking for process to run.
     // acquire(&ptable.lock);
@@ -483,6 +472,7 @@ scheduler(void)
 
     //   p = highest_p;
 
+
     //   // ---------------------- END PRIORITY -------------------------
 
       // Switch to chosen process.  It is the process's job
@@ -498,7 +488,6 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-    }
 
     release(&ptable.lock);
 

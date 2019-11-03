@@ -8,14 +8,17 @@ int main(int argc, char *argv[])
     if(pid == 0)
     {
         float test = 0;
-        for(volatile int i = 0; i<30000000000; i++){
+        for(volatile int i = 0; i<300000000; i++){
             test += 5*0.01;
         }
-        printf(1, "Invalid Command\n");
     }
     else if(pid < 0)
     {
         printf(1, "Forking Failed\n");
+    }
+    else
+    {
+        // wait();
     }
 
     exit();
