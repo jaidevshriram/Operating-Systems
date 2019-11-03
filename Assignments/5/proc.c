@@ -399,12 +399,13 @@ int
 set_priority(int pid, int priority)
 {
   struct proc *p;
-  int not_found = 1;
+  int not_found = 1, ret = 0;
 
   acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC] && not_found; p++) {
     if(p->pid == pid){
+      ret = p->priority;
       p->priority = priority;
       cprintf("%d process set to priority %d\n", pid, priority);
       not_found = 0;
@@ -413,7 +414,7 @@ set_priority(int pid, int priority)
 
   release(&ptable.lock);
 
-  return 0;
+  return ret;
 }
 
 //PAGEBREAK: 42
@@ -432,9 +433,9 @@ scheduler(void)
   c->proc = 0;
   
   for(;;){
-    // Enable interrupts on this processor.
-    sti();
 
+    // ------------------------ START FCFS --------------------------
+ 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
 
@@ -443,19 +444,46 @@ scheduler(void)
         continue;
 
 
-      // --------------------- START PRIORITY -----------------------
-      struct proc *highest_p;
-      highest_p = p;
+      struct proc *lowest_p;
+      lowest_p = p;
 
       for(struct proc *j = ptable.proc; j < &ptable.proc[NPROC]; j++){
         if(j->state != RUNNABLE)
           continue;
-        if(highest_p->priority > j->priority)
-          highest_p = j;
+        if(lowest_p->ctime < j->ctime)
+          lowest_p = j;
       }
 
-      p = highest_p;
-      // ---------------------- END PRIORITY -------------------------
+      p = lowest_p;
+
+    // ------------------------ END FCFS ----------------------------
+
+    // // --------------------- START PRIORITY -----------------------
+
+    // // Enable interrupts on this processor.
+    // sti();
+
+    // // Loop over process table looking for process to run.
+    // acquire(&ptable.lock);
+
+    // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    //   if(p->state != RUNNABLE)
+    //     continue;
+
+
+    //   struct proc *highest_p;
+    //   highest_p = p;
+
+    //   for(struct proc *j = ptable.proc; j < &ptable.proc[NPROC]; j++){
+    //     if(j->state != RUNNABLE)
+    //       continue;
+    //     if(highest_p->priority > j->priority)
+    //       highest_p = j;
+    //   }
+
+    //   p = highest_p;
+
+    //   // ---------------------- END PRIORITY -------------------------
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
