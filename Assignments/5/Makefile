@@ -1,3 +1,5 @@
+SCHEDULER=RR
+
 OBJS = \
 	bio.o\
 	console.o\
