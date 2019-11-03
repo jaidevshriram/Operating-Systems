@@ -277,6 +277,25 @@ exit(void)
   panic("zombie exit");
 }
 
+
+//System call to print information on all running/sleeping processes
+int
+ps(void)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  cprintf("NAME \t pid \t state \t priority\n");
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == SLEEPING)
+      cprintf("%s \t %d \t SLEEPING \t %d \n", p->name, p->pid, p->priority);
+    else if(p->state == RUNNING)
+      cprintf("%s \t %d \t RUNNING \t %d \n", p->name, p->pid, p->priority);
+  }
+  release(&ptable.lock);
+  return 0;
+}
+
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
 int

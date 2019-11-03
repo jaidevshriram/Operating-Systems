@@ -8,6 +8,13 @@
 #include "proc.h"
 
 int
+sys_ps(void)
+{
+  ps();
+  return 0;
+}
+
+int
 sys_fork(void)
 {
   return fork();
