@@ -440,9 +440,10 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
 
+      #ifdef RR
+      #else
       #ifdef FCFS
         // --------------------- START FCFS -----------------------
-
         struct proc *lowest_p = p;
 
         if(p->pid > 2)
@@ -459,6 +460,7 @@ scheduler(void)
       #else
       #ifdef PRIORITY
         // --------------------- START PRIORITY -----------------------
+        // cprintf("PRIORITY\n");
         struct proc *highest_p;
         highest_p = p;
 
@@ -473,7 +475,7 @@ scheduler(void)
         // ---------------------- END PRIORITY -------------------------
       #endif
       #endif
-
+      #endif
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it

@@ -1,4 +1,6 @@
-SCHEDULER=RR
+ifndef SCHEDULER
+SCHEDULER := RR
+endif
 
 OBJS = \
 	bio.o\
@@ -72,6 +74,7 @@ QEMU = $(shell if which qemu > /dev/null; \
 	echo "*** or have you tried setting the QEMU variable in Makefile?" 1>&2; \
 	echo "***" 1>&2; exit 1)
 endif
+
 
 CC = $(TOOLPREFIX)gcc
 AS = $(TOOLPREFIX)gas
@@ -226,6 +229,9 @@ ifndef CPUS
 CPUS := 2
 endif
 QEMUOPTS = -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 512 $(QEMUEXTRA)
+
+flags:
+	@echo $(SCHEDULER)
 
 qemu: fs.img xv6.img
 	$(QEMU) -serial mon:stdio $(QEMUOPTS)
