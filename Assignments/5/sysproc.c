@@ -111,10 +111,13 @@ sys_uptime(void)
 int
 sys_set_priority(void)
 {
-  int pid, priority;
-  if(argint(0, &pid) < 0 || argint(1, &priority) < 0)
+  int pid, pr;
+  if(argint(0, &pid) < 0)
+    return -1;
+  if(argint(1, &pr) < 0)
     return -1;
 
-  set_priority(pid, priority);
+  set_priority(pid, pr);
+  
   return 0;
 }
