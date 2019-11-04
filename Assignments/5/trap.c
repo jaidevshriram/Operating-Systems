@@ -58,9 +58,8 @@ trap(struct trapframe *tf)
       {
         if(myproc()->state == RUNNING)
         {
-          // cprintf("test %d\n", myproc()->rtime);
+          cprintf("%d:test %d\n", myproc()->pid, myproc()->rtime);
           myproc()->rtime =  myproc()->rtime + 1;
-          // cprintf("test2 %d\n", myproc()->rtime);
         }
       }
     }
@@ -110,8 +109,7 @@ trap(struct trapframe *tf)
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
     exit();
 
-#ifdef FCFS
-#else
+#ifndef FCFS
   // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
   if(myproc() && myproc()->state == RUNNING &&
