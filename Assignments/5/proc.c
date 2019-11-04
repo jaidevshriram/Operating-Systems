@@ -444,17 +444,17 @@ scheduler(void)
       #else
       #ifdef FCFS
         // --------------------- START FCFS -----------------------
+        // cprintf("FCFS\n");
         struct proc *lowest_p = p;
 
-        if(p->pid > 2)
-        {
-          if(p->ctime < lowest_p->ctime)
-            lowest_p = p;
+        for(struct proc *j = ptable.proc; j < &ptable.proc[NPROC]; j++){
+          if(j->state != RUNNABLE || j->pid<=2)
+            continue;
+          if(j->ctime < lowest_p->ctime)
+            lowest_p = j;
         }
 
-        if(p->state == RUNNABLE)
-          p = lowest_p;
-
+        p = lowest_p;  
         // ---------------------- END FCFS -------------------------
 
       #else

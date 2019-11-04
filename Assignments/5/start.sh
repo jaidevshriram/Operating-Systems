@@ -1,1 +1,1 @@
-make clean && make && make qemu
+make clean && make qemu SCHEDULER=$1
