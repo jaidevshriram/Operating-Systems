@@ -168,6 +168,7 @@ main(void)
       runcmd(parsecmd(buf));
     wait();
   }
+  // printf(2, "SHELL DONE\n");
   exit();
 }
 
