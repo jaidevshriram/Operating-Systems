@@ -467,6 +467,32 @@ void update_queue()
   upgrade_process();
 }
 
+void downgrade_process()
+{
+  for(int i=0; i<4; i++)
+  {
+    if(priority_queue_top[i]>0)
+    {
+      for(int j=0; j<priority_queue_top[i]; j++)
+      {
+        struct proc *p;
+        for(p = ptable.proc; p < &ptable.proc[NPROC] && not_found; p++)
+        {
+          if(p->pid == priority_queue[i][j])
+          {
+            if(ptable.proc_stat[p->pid].rtime >= priority_queue_tick_count[i])
+            {
+              delete_pid(i,j);
+              j--;
+              priority_queue[priority_queue_top[i+1]++] = p->pid;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -512,6 +538,14 @@ scheduler(void)
           break;
         }
       }
+    }
+
+    if(chosen==NULL)
+      continue;
+    else
+    {
+      p = chosen;
+      break;
     }
   }
 
@@ -575,6 +609,10 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+
+#ifdef MLFQ
+      downgrade_process();
+#endif
     }
 
     release(&ptable.lock);
