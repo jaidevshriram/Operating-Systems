@@ -490,12 +490,29 @@ scheduler(void)
     acquire(&ptable.lock);
 
 #ifdef MLFQ
+  
   update_queue();
 
   int pid = -1;
 
   for(int i=0; i<5; i++)
   {
+    if(priority_queue_top[i]==0)
+      continue;
+
+    struct proc *chosen = NULL;
+
+    for(int j=0; j<priority_queue_top[i] && !chosen; j++)
+    {
+      for(p = ptable.proc; p < &ptable.proc[NPROC] && !chosen; p++)
+      {
+        if(priority_queue[j] == p->pid && p->state == RUNNABLE)
+        {
+          chosen = p;
+          break;
+        }
+      }
+    }
   }
 
 #else
