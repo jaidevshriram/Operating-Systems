@@ -14,6 +14,9 @@ struct {
 } ptable;
 
 static struct proc *initproc;
+int priority_queue[5][NPROC];
+int priority_queue_top[5];
+int priority_tick_count[5] = [1, 2, 4, 8, 16];
 
 int nextpid = 1;
 extern void forkret(void);
@@ -75,7 +78,6 @@ static struct proc*
 allocproc(void)
 {
   struct proc *p;
-  // struct proc_stat *p_stat;
   char *sp;
 
   acquire(&ptable.lock);
@@ -88,10 +90,19 @@ allocproc(void)
   return 0;
 
 found:
+
   p->state = EMBRYO;
   p->pid = nextpid++;
-  // p_stat->pid = p->pid;
+  ptable.proc_stat[p->pid].pid = p->pid;
+
+#ifdef PRIORITY 
   p->priority = 60;
+#else
+#ifdef MLFQ
+  p->priority = ptable.proc_state[p->pid].current_queue = 0;
+  priority_queue[p->priority][priority_queue_top[p->priority]++] = p->pid;
+#endif
+#endif
 
   release(&ptable.lock);
 
@@ -413,6 +424,45 @@ set_priority(int pid, int priority)
   return ret; 
 }
 
+void delete_pid(int pr, int pos)
+{
+  for(int i=pos; i<priority_queue_top[pr]; i++)
+    priority_queue[pr][i] = priority_queue[pr][i+1];
+  priority_queue_top[pr]--;
+}
+
+void remove_dead_process()
+{
+  for(int i=0; i<5; i++)
+  {
+    if(priority_queue_top[i]>0)
+    {
+      for(int j=0; j<priority_queue_top[i]; j++)
+      {
+        int not_found = 1;
+        for(p = ptable.proc; p < &ptable.proc[NPROC] && not_found; p++)
+        {
+          if(p->pid == priority_queue[i][j])
+            not_found = 0;
+        }
+
+        if(not_found == 1)
+          delete_pid(i, j);
+      }
+    }
+  }
+}
+
+void upgrade_process()
+{
+}
+
+void update_queue()
+{
+  remove_dead_process();
+  upgrade_process();
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -435,6 +485,16 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
 
+#ifdef MLFQ
+  update_queue();
+
+  int pid = -1;
+
+  for(int i=0; i<5; i++)
+  {
+  }
+
+#else
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       
       if(p->state != RUNNABLE)
@@ -473,9 +533,11 @@ scheduler(void)
 
         p = highest_p;
         // ---------------------- END PRIORITY -------------------------
+      #else
       #endif
       #endif
       #endif
+#endif
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
