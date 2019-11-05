@@ -480,11 +480,12 @@ void downgrade_process()
         {
           if(p->pid == priority_queue[i][j])
           {
-            if(ptable.proc_stat[p->pid].rtime >= priority_queue_tick_count[i])
+            if(ptable.proc_stat[p->pid].queue_tick_count[i] >= priority_queue_tick_count[i])
             {
               delete_pid(i,j);
               j--;
               priority_queue[priority_queue_top[i+1]++] = p->pid;
+              ptable.proc_stat[p->pid].current_queue = i+1;
             }
           }
         }
