@@ -16,7 +16,7 @@ struct {
 static struct proc *initproc;
 int priority_queue[5][NPROC];
 int priority_queue_top[5];
-int priority_tick_count[5] = [1, 2, 4, 8, 16];
+int priority_tick_count[] = {1, 2, 4, 8, 16};
 
 int nextpid = 1;
 extern void forkret(void);
@@ -95,8 +95,11 @@ found:
   p->pid = nextpid++;
   ptable.proc_stat[p->pid].pid = p->pid;
 
-#ifdef PRIORITY 
-  p->priority = 60;
+#ifdef PRIORITY
+  if(p->pid <=3)
+    p->priority = 0;
+  else
+    p->priority = 60;
 #else
 #ifdef MLFQ
   p->priority = ptable.proc_state[p->pid].current_queue = 0;
@@ -440,6 +443,7 @@ void remove_dead_process()
       for(int j=0; j<priority_queue_top[i]; j++)
       {
         int not_found = 1;
+        struct proc *p;
         for(p = ptable.proc; p < &ptable.proc[NPROC] && not_found; p++)
         {
           if(p->pid == priority_queue[i][j])
@@ -542,6 +546,8 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
+      // if(p->pid == 2)
+      //   cprintf("sh run\n");
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
