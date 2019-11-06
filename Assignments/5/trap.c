@@ -60,6 +60,7 @@ trap(struct trapframe *tf)
         {
           // cprintf("%d:test %d\n", myproc()->pid, myproc()->rtime);
           myproc()->rtime =  myproc()->rtime + 1;
+          myproc()->runtime++;
         #ifdef MLFQ
           myproc()->ticks[myproc()->current_queue]++;
           myproc()->last_time = ticks;

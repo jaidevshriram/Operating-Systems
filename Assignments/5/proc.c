@@ -449,8 +449,12 @@ int getpinfo(struct proc_stat *proc_stat, int pid)
       proc_stat->pid = pid;
       proc_stat->runtime = p->rtime;
       proc_stat->current_queue = p->current_queue;
+      cprintf("current queue is %d\n", p->current_queue);
       for(int i=0; i<5; i++)
+      {
+        cprintf("ticks in queue %d are %d\n", i, p->ticks[i]);
         proc_stat->ticks[i] = p->ticks[i];
+      }
     }
   }
 
