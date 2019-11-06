@@ -23,3 +23,4 @@
 #define SYS_waitx  22
 #define SYS_set_priority 23
 #define SYS_ps 24
+#define SYS_getpinfo 25

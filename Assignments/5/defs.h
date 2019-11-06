@@ -9,6 +9,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct proc_stat;
 
 // bio.c
 void            binit(void);
@@ -123,6 +124,7 @@ void            wakeup(void*);
 void            yield(void);
 int             set_priority(int pid, int priority);
 int             ps(void);
+int             getpinfo(struct proc_stat *, int pid);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

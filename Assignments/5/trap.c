@@ -62,6 +62,7 @@ trap(struct trapframe *tf)
           myproc()->rtime =  myproc()->rtime + 1;
         #ifdef MLFQ
           myproc()->ticks[myproc()->current_queue]++;
+          myproc()->last_time = ticks;
           // print_mlfq();
         #endif
         }

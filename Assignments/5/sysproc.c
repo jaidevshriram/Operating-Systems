@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "proc_stat.h"
 
 int
 sys_ps(void)
@@ -120,4 +121,17 @@ sys_set_priority(void)
   set_priority(pid, pr);
   
   return 0;
+}
+
+int
+sys_getpinfo(void)
+{
+  struct proc_stat *proc_stat;
+  int pid;
+
+  if(argptr(0, (char **)&proc_stat, sizeof(proc_stat)) !=0 || argint(1, &pid) != 0)
+    return -1;
+
+  getpinfo(proc_stat, pid);
+  return 0; 
 }

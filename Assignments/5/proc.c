@@ -6,13 +6,13 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "proc_stat.h"
 
 #define NULL 0
 
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
-  struct proc_stat proc_stat[NPROC]; 
 } ptable;
 
 static struct proc *initproc;
@@ -108,6 +108,10 @@ found:
 #ifdef MLFQ
   p->priority = p->current_queue = 0;
   priority_queue[p->priority][priority_queue_top[p->priority]++] = p->pid;
+  p->runtime = 0;
+  p->num_run = 0;
+  for(int i=0; i<5; i++)
+    p->ticks[i] = 0;
 #endif
 #endif
 
@@ -433,6 +437,28 @@ set_priority(int pid, int priority)
   return ret; 
 }
 
+int getpinfo(struct proc_stat *proc_stat, int pid)
+{
+  acquire(&ptable.lock);
+
+  struct proc *p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if(p->pid == pid)
+    {
+      proc_stat->pid = pid;
+      proc_stat->runtime = p->rtime;
+      proc_stat->current_queue = p->current_queue;
+      for(int i=0; i<5; i++)
+        proc_stat->ticks[i] = p->ticks[i];
+    }
+  }
+
+  release(&ptable.lock);
+
+  return 0;
+}
+
 #ifdef MLFQ
 
 void delete_pid(int pr, int pos)
@@ -482,11 +508,30 @@ void remove_dead_process()
   }
 }
 
-void update_queue()
+//This functions moves a starved process to a higher queue
+void upgrade_process()
 {
-  remove_dead_process();
+  for(int i=1; i<5; i++)
+  {
+    if(priority_queue_top[i]>0)
+    {
+      for(int j=0; j<priority_queue_top[i]; j++)
+      {
+        struct proc *p;
+        for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+        {
+          if(p->pid == priority_queue[i][j] && p->pid >= 3 && (ticks - p->last_time) > max_wait)
+          {
+            delete_pid(i,j);
+            priority_queue[i-1][priority_queue_top[i-1]++] = p->pid;
+            p->priority = i-1;
+            p->current_queue = i-1;
+          }
+        }
+      }
+    }
+  }
 }
-
 
 //This process moves a process to a lower queue
 void downgrade_process()
@@ -504,6 +549,7 @@ void downgrade_process()
           {
             delete_pid(i,j);
             priority_queue[i+1][priority_queue_top[i+1]++] = p->pid;
+            p->priority = i+1;
             p->current_queue = i+1;
           }
         }
@@ -512,6 +558,12 @@ void downgrade_process()
   }
 
   // print_mlfq();
+}
+
+void update_queue()
+{
+  remove_dead_process();
+  upgrade_process();
 }
 
 #endif
@@ -627,14 +679,15 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      // if(p->pid == 2)
-      //   cprintf("sh run\n");
+
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
+
+      p->num_run++;
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
@@ -648,14 +701,15 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      // if(p->pid == 2)
-      //   cprintf("sh run\n");
+
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
+
+      p->num_run++;
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
