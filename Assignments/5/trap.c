@@ -58,11 +58,12 @@ trap(struct trapframe *tf)
       {
         if(myproc()->state == RUNNING)
         {
-          cprintf("%d:test %d\n", myproc()->pid, myproc()->rtime);
+          // cprintf("%d:test %d\n", myproc()->pid, myproc()->rtime);
           myproc()->rtime =  myproc()->rtime + 1;
-          #ifdef MLFQ
+        #ifdef MLFQ
           myproc()->ticks[myproc()->current_queue]++;
-          #endif
+          // print_mlfq();
+        #endif
         }
       }
     }

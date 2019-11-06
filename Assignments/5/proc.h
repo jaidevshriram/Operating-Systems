@@ -52,7 +52,11 @@ struct proc {
   unsigned int ctime;          // Creation Time
   unsigned int rtime;          // Run Time
   unsigned int etime;          // End Time
+  unsigned int wtime;
   int priority;                // Process Priority
+  int num_run;                 // Number of times, process is executed
+  int current_queue;           // Currently Assigned Queue
+  int ticks[5];                // Number of ticks each process has received at each of the 5 priority queue
 };
 
 // Process memory is laid out contiguously, low addresses first:
@@ -70,3 +74,5 @@ struct proc_stat {
   int current_queue;            // Currently Assigned Queue
   int ticks[5];                 // Number of ticks each process has received at each of the 5 priority queue
 };
+
+void print_mlfq();
