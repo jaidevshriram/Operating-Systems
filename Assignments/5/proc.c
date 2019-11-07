@@ -425,11 +425,16 @@ int
 set_priority(int pid, int priority)
 {
   struct proc *p;
-  int not_found = 1, ret = 0; 
+  int not_found = 1, ret = -1;
+
+  if(priority>100 || priority<0)
+    return -1;
+
   acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC] && not_found; p++) {
     if(p->pid == pid){
+      ret = p->priority;
       p->priority = priority;
       not_found = 0;
     }
