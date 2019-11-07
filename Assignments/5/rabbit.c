@@ -17,8 +17,9 @@ int main(int argc, char *argv[])
             for(volatile int i = 0; i<count; i++){
                 test += 5*0.01;
             }
-
             exit();
         }
+
+        sleep(10);
     }
 }
