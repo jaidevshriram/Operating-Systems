@@ -469,7 +469,10 @@ int getpinfo(struct proc_stat *proc_stat, int pid)
   release(&ptable.lock);
 
   if(not_found == 1)
+  {
     cprintf("Process with pid %d doesn't exist in proc table\n");
+    return -1;
+  }
 
   return 0;
 }
@@ -543,10 +546,11 @@ void upgrade_process()
             if(p->pid == priority_queue[i][j] && p->pid >= 3 && (ticks - p->last_time) > max_wait)
             {
               delete_pid(i,j);
-              // rerun = 1;
+              j--;
               priority_queue[i-1][priority_queue_top[i-1]++] = p->pid;
               p->priority = i-1;
               p->current_queue = i-1;
+              break;
             }
           }
         }
@@ -576,10 +580,11 @@ void downgrade_process()
             if(p->pid == priority_queue[i][j] && p->pid >= 3 && p->ticks[i] >= priority_tick_count[i])
             {
               delete_pid(i,j);
-              // rerun = 1;
+              j--;
               priority_queue[i+1][priority_queue_top[i+1]++] = p->pid;
               p->priority = i+1;
               p->current_queue = i+1;
+              break;
             }
           }
         }
@@ -655,22 +660,22 @@ scheduler(void)
       }
     }
 
-    // if(next_low_queue >= priority_queue_top[4])
-    //   next_low_queue = 0;
+    if(next_low_queue >= priority_queue_top[4])
+      next_low_queue = 0;
 
-    // while(next_low_queue < priority_queue_top[4] && chosen == NULL)
-    // {
-    //   next_low_queue = (next_low_queue+1)%priority_queue_top[4];
+    while(next_low_queue < priority_queue_top[4] && chosen == NULL)
+    {
+      next_low_queue = (next_low_queue+1)%priority_queue_top[4];
 
-    //   for(p = ptable.proc; p < &ptable.proc[NPROC] && !chosen; p++)
-    //   {
-    //     if(priority_queue[4][next_low_queue] == p->pid && p->state == RUNNABLE)
-    //     {
-    //       chosen = p;
-    //       break;
-    //     }
-    //   }
-    // }
+      for(p = ptable.proc; p < &ptable.proc[NPROC] && !chosen; p++)
+      {
+        if(priority_queue[4][next_low_queue] == p->pid && p->state == RUNNABLE)
+        {
+          chosen = p;
+          break;
+        }
+      }
+    }
 
     if(chosen == NULL)
     {
