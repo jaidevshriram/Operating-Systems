@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
         float test = 0;
         
         for(volatile unsigned int i = 0; i<count; i++){
-            for(volatile  unsigned int j = 0; j<40; j++){
+            for(volatile  unsigned int j = 0; j<5; j++){
                 test += 5*0.01*2.00345 - 1 + 0.25;
             }
         }

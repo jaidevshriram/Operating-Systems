@@ -834,6 +834,7 @@ sleep(void *chan, struct spinlock *lk)
   p->chan = chan;
   p->state = SLEEPING;
 
+#ifdef MLFQ
   for(int j=0; j<priority_queue_top[p->current_queue]; j++)
   {
     if(priority_queue[p->current_queue][j] == p->pid)
@@ -842,6 +843,7 @@ sleep(void *chan, struct spinlock *lk)
       break;
     }
   }
+#endif
 
   sched();
 
@@ -867,7 +869,9 @@ wakeup1(void *chan)
     if(p->state == SLEEPING && p->chan == chan)
     {
       p->state = RUNNABLE;
+#ifdef MLFQ
       priority_queue[p->current_queue][priority_queue_top[p->current_queue]++] = p->pid;
+#endif
     }
 }
 
