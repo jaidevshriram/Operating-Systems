@@ -1,4 +1,4 @@
-if ["$#" -ne 1];
+if [ "$#" -ne 1 ];
 then
     make clean && make qemu SCHEDULER=RR
     exit 1

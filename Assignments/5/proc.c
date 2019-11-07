@@ -21,7 +21,7 @@ int priority_queue_top[5];
 int priority_tick_count[] = {1, 2, 4, 8, 16};
 
 int nextpid = 1;
-int max_wait = 2;
+int max_wait = 3;
 int next_low_queue = 0;
 
 extern void forkret(void);
@@ -102,7 +102,7 @@ found:
   p->pid = nextpid++;
 
 #ifdef PRIORITY
-  if(p->pid <=3)
+  if(p->pid <=2)
     p->priority = 0;
   else
     p->priority = 60;
@@ -442,10 +442,12 @@ set_priority(int pid, int priority)
 
 int getpinfo(struct proc_stat *proc_stat, int pid)
 {
+
+  int not_found = 1;
   acquire(&ptable.lock);
 
   struct proc *p;
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  for(p = ptable.proc; p < &ptable.proc[NPROC] && not_found; p++)
   {
     if(p->pid == pid)
     {
@@ -459,10 +461,15 @@ int getpinfo(struct proc_stat *proc_stat, int pid)
         // cprintf("ticks in queue %d are %d\n", i, p->ticks[i]);
         proc_stat->ticks[i] = p->ticks[i];
       }
+
+      not_found = 0;
     }
   }
 
   release(&ptable.lock);
+
+  if(not_found == 1)
+    cprintf("Process with pid %d doesn't exist in proc table\n");
 
   return 0;
 }
@@ -519,53 +526,67 @@ void remove_dead_process()
 //This functions moves a starved process to a higher queue
 void upgrade_process()
 {
-  for(int i=1; i<5; i++)
-  {
-    if(priority_queue_top[i]>0)
+  int rerun = 1;
+  while(rerun) {
+    
+    rerun = 0;
+    
+    for(int i=1; i<5; i++)
     {
-      for(int j=0; j<priority_queue_top[i]; j++)
+      if(priority_queue_top[i]>0)
       {
-        struct proc *p;
-        for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+        for(int j=0; j<priority_queue_top[i]; j++)
         {
-          if(p->pid == priority_queue[i][j] && p->pid >= 3 && (ticks - p->last_time) > max_wait)
+          struct proc *p;
+          for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
           {
-            delete_pid(i,j);
-            priority_queue[i-1][priority_queue_top[i-1]++] = p->pid;
-            p->priority = i-1;
-            p->current_queue = i-1;
+            if(p->pid == priority_queue[i][j] && p->pid >= 3 && (ticks - p->last_time) > max_wait)
+            {
+              delete_pid(i,j);
+              // rerun = 1;
+              priority_queue[i-1][priority_queue_top[i-1]++] = p->pid;
+              p->priority = i-1;
+              p->current_queue = i-1;
+            }
           }
         }
       }
     }
+
   }
 }
 
 //This process moves a process to a lower queue
 void downgrade_process()
 {
-  for(int i=0; i<4; i++)
-  {
-    if(priority_queue_top[i]>0)
+  int rerun = 1;
+  while(rerun) {
+    
+    rerun = 0;
+    
+    for(int i=0; i<4; i++)
     {
-      for(int j=0; j<priority_queue_top[i]; j++)
+      if(priority_queue_top[i]>0)
       {
-        struct proc *p;
-        for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+        for(int j=0; j<priority_queue_top[i]; j++)
         {
-          if(p->pid == priority_queue[i][j] && p->pid >= 3 && p->ticks[i] >= priority_tick_count[i] && p->state!=RUNNING)
+          struct proc *p;
+          for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
           {
-            delete_pid(i,j);
-            priority_queue[i+1][priority_queue_top[i+1]++] = p->pid;
-            p->priority = i+1;
-            p->current_queue = i+1;
+            if(p->pid == priority_queue[i][j] && p->pid >= 3 && p->ticks[i] >= priority_tick_count[i])
+            {
+              delete_pid(i,j);
+              // rerun = 1;
+              priority_queue[i+1][priority_queue_top[i+1]++] = p->pid;
+              p->priority = i+1;
+              p->current_queue = i+1;
+            }
           }
         }
       }
     }
+  
   }
-
-  // print_mlfq();
 }
 
 void update_queue()
@@ -605,7 +626,7 @@ scheduler(void)
 
     struct proc *chosen = NULL;
 
-    for(int i=0; i<4; i++)
+    for(int i=0; i<5; i++)
     {
       // cprintf("%d\n", i);
       if(priority_queue_top[i]==0)
@@ -634,22 +655,22 @@ scheduler(void)
       }
     }
 
-    if(next_low_queue >= priority_queue_top[4])
-      next_low_queue = 0;
+    // if(next_low_queue >= priority_queue_top[4])
+    //   next_low_queue = 0;
 
-    while(next_low_queue < priority_queue_top[4] && chosen == NULL)
-    {
-      next_low_queue = (next_low_queue+1)%priority_queue_top[4];
+    // while(next_low_queue < priority_queue_top[4] && chosen == NULL)
+    // {
+    //   next_low_queue = (next_low_queue+1)%priority_queue_top[4];
 
-      for(p = ptable.proc; p < &ptable.proc[NPROC] && !chosen; p++)
-      {
-        if(priority_queue[4][next_low_queue] == p->pid && p->state == RUNNABLE)
-        {
-          chosen = p;
-          break;
-        }
-      }
-    }
+    //   for(p = ptable.proc; p < &ptable.proc[NPROC] && !chosen; p++)
+    //   {
+    //     if(priority_queue[4][next_low_queue] == p->pid && p->state == RUNNABLE)
+    //     {
+    //       chosen = p;
+    //       break;
+    //     }
+    //   }
+    // }
 
     if(chosen == NULL)
     {
