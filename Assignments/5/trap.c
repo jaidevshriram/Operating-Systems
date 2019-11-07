@@ -59,12 +59,17 @@ trap(struct trapframe *tf)
         if(myproc()->state == RUNNING)
         {
           // cprintf("%d:test %d\n", myproc()->pid, myproc()->rtime);
-          myproc()->rtime =  myproc()->rtime + 1;
+          myproc()->rtime++;
           myproc()->runtime++;
         #ifdef MLFQ
           myproc()->ticks[myproc()->current_queue]++;
           myproc()->last_time = ticks;
-          // print_mlfq();
+          
+          if(myproc()->pid > 2)
+          {
+            // print_mlfq();
+          }
+
         #endif
         }
       }

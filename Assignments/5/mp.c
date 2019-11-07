@@ -127,6 +127,9 @@ mpinit(void)
       break;
     }
   }
+
+  cprintf("%d cpu count\n", ncpu);
+
   if(!ismp)
     panic("Didn't find a suitable machine");
 

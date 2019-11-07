@@ -7,15 +7,13 @@ int main(int argc, char *argv[])
     int pid = fork();
     if(pid == 0)
     {
-        int count = 10000000;
+        int count = 900000000;
         float test = 0;
-
-        if(atoi(argv[1])==1)
-            count = 500000000;
         
         for(volatile int i = 0; i<count; i++){
-            test += 5*0.01;
+            test += 5*0.01*2.00345 - 1 + 0.25;
         }
+        exit();
     }
     else if(pid < 0)
     {
@@ -23,8 +21,9 @@ int main(int argc, char *argv[])
     }
     else
     {
-        wait();
-        printf(1, "PROCESS DONE\n");
+        int status = -1;
+        // status = wait();
+        printf(1, "PROCESS DONE: %d with %d\n", pid, status);
     }
 
     exit();

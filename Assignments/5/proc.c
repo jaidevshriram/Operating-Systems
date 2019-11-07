@@ -21,7 +21,9 @@ int priority_queue_top[5];
 int priority_tick_count[] = {1, 2, 4, 8, 16};
 
 int nextpid = 1;
-int max_wait = 15;
+int max_wait = 2;
+int next_low_queue = 0;
+
 extern void forkret(void);
 extern void trapret(void);
 
@@ -112,6 +114,7 @@ found:
   p->num_run = 0;
   for(int i=0; i<5; i++)
     p->ticks[i] = 0;
+  p->last_time = ticks;
 #endif
 #endif
 
@@ -449,10 +452,11 @@ int getpinfo(struct proc_stat *proc_stat, int pid)
       proc_stat->pid = pid;
       proc_stat->runtime = p->rtime;
       proc_stat->current_queue = p->current_queue;
-      cprintf("current queue is %d\n", p->current_queue);
+      proc_stat->num_run = p->num_run;
+      // cprintf("current queue is %d\n", p->current_queue);
       for(int i=0; i<5; i++)
       {
-        cprintf("ticks in queue %d are %d\n", i, p->ticks[i]);
+        // cprintf("ticks in queue %d are %d\n", i, p->ticks[i]);
         proc_stat->ticks[i] = p->ticks[i];
       }
     }
@@ -502,7 +506,7 @@ void remove_dead_process()
             not_found = 0;
         }
 
-        if(not_found == 1)
+        if(not_found == 1 && priority_queue[i][j] > 2)
         {
           delete_pid(i, j);
           // print_mlfq();
@@ -549,7 +553,7 @@ void downgrade_process()
         struct proc *p;
         for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
         {
-          if(p->pid == priority_queue[i][j] && p->pid >= 3 && p->ticks[i] > priority_tick_count[i] && p->state!=RUNNING)
+          if(p->pid == priority_queue[i][j] && p->pid >= 3 && p->ticks[i] >= priority_tick_count[i] && p->state!=RUNNING)
           {
             delete_pid(i,j);
             priority_queue[i+1][priority_queue_top[i+1]++] = p->pid;
@@ -597,10 +601,11 @@ scheduler(void)
   #ifdef MLFQ
   
     update_queue();
+    // print_mlfq();
 
     struct proc *chosen = NULL;
 
-    for(int i=0; i<5; i++)
+    for(int i=0; i<4; i++)
     {
       // cprintf("%d\n", i);
       if(priority_queue_top[i]==0)
@@ -629,12 +634,29 @@ scheduler(void)
       }
     }
 
+    if(next_low_queue >= priority_queue_top[4])
+      next_low_queue = 0;
+
+    while(next_low_queue < priority_queue_top[4] && chosen == NULL)
+    {
+      next_low_queue = (next_low_queue+1)%priority_queue_top[4];
+
+      for(p = ptable.proc; p < &ptable.proc[NPROC] && !chosen; p++)
+      {
+        if(priority_queue[4][next_low_queue] == p->pid && p->state == RUNNABLE)
+        {
+          chosen = p;
+          break;
+        }
+      }
+    }
+
     if(chosen == NULL)
     {
       release(&ptable.lock);
       continue;
     }
-
+  
   #else
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       
@@ -807,10 +829,19 @@ sleep(void *chan, struct spinlock *lk)
     acquire(&ptable.lock);  //DOC: sleeplock1
     release(lk);
   }
+
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
-  // cprintf("%d has gone to sleep\n", p->pid);
+
+  for(int j=0; j<priority_queue_top[p->current_queue]; j++)
+  {
+    if(priority_queue[p->current_queue][j] == p->pid)
+    {
+      delete_pid(p->current_queue, j);
+      break;
+    }
+  }
 
   sched();
 
@@ -834,7 +865,10 @@ wakeup1(void *chan)
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan)
+    {
       p->state = RUNNABLE;
+      priority_queue[p->current_queue][priority_queue_top[p->current_queue]++] = p->pid;
+    }
 }
 
 // Wake up all processes sleeping on chan.
